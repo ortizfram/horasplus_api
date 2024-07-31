@@ -4,9 +4,9 @@ const isAuthenticated = require("../middlewares/isAuth");
 
 const router = express.Router();
 
-//!Register
-router.post("/api/users/register", userCtrl.register);
-router.post("/api/users/login", userCtrl.login);
-router.get("/api/users/profile", isAuthenticated, userCtrl.profile);
+router.post("/register", userCtrl.register);
+router.post("/login", userCtrl.login);
+router.post("/logout", userCtrl.logout);
+router.get("/profile", isAuthenticated, userCtrl.profile);
 
 module.exports = router;

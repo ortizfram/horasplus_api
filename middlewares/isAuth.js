@@ -1,24 +1,18 @@
 const jwt = require("jsonwebtoken");
-const isAuthenticated = async (req, res, next) => {
-  //! Get the token from the header
-  const headerObj = req.headers;
-  const token = headerObj.authorization.split(" ")[1];
+const isAuthenticated = (req, res, next) => {
+  const token =
+    req.cookies.token || req.headers["authorization"]?.split(" ")[1];
 
-  //Verify token
-  const verifyToken = jwt.verify(token, "anyKey", (err, decoded) => {
-    if (err) {
-      return false;
-    } else {
-      return decoded;
-    }
-  });
-  if (verifyToken) {
-    //save the user into req.obj
-    req.user = verifyToken.id;
-    next();
-  } else {
-    const err = new Error("Token expired please login again");
-    next(err);
+  if (token == null) return res.sendStatus(401);
+
+  try {
+    jwt.verify(token, "anyKey", (err, user) => {
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      next();
+    });
+  } catch (error) {
+    return res.status(401).json({ message: "Not authenticated" });
   }
 };
 

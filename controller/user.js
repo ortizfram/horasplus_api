@@ -7,63 +7,82 @@ const userCtrl = {
   //!Register
   register: asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    console.log({ email, password });
-    //!Validations
+
+    // Validations
     if (!email || !password) {
-      throw new Error("Please all fields are required");
+      return res.status(400).json({ message: "All fields are required" });
     }
-    //! check if user already exists
-    const userExits = await User.findOne({ email });
-    // console.log("userExits", userExits);
-    if (userExits) {
-      throw new Error("User already exists");
+
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(409).json({ message: "User already exists" });
     }
-    //! Hash the user password
+
+    // Hash the user password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    //!Create the user
+
+    // Create the user
     const userCreated = await User.create({
       password: hashedPassword,
       email,
     });
-    //!Send the response
+
+    // Send the response
     console.log("userCreated", userCreated);
-    res.json({
-      username: userCreated.username,
+    res.status(201).json({
       email: userCreated.email,
-      id: userCreated.id,
+      _id: userCreated._id,
     });
   }),
+
+  //!Logout
+  logout: asyncHandler(async (req, res) => {
+    res.clearCookie("token"); // Example, adjust as necessary
+    res.status(200).json({ message: "Logged out successfully" });
+  }),
+  
   //!Login
   login: asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     //!Check if user email exists
     const user = await User.findOne({ email });
-    console.log("user backend", user);
     if (!user) {
-      throw new Error("Invalid credentials");
+      return res.status(401).json({ message: "Invalid credentials" });
     }
     //!Check if user password is valid
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new Error("Invalid credentials");
+      return res.status(401).json({ message: "Invalid credentials" });
     }
     //! Generate the token
     const token = jwt.sign({ id: user._id }, "anyKey", { expiresIn: "30d" });
-    //!Send the response
+
+    //!Send the response with cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
     res.json({
       message: "Login success",
-      token,
-      id: user._id,
+      _id: user._id,
       email: user.email,
-      username: user.username,
     });
   }),
+
   //!Profile
   profile: asyncHandler(async (req, res) => {
-    //Find the user
-    const user = await User.findById(req.user).select("-password");
-    res.json({ user });
+    const user = await User.findById(req.user.id);
+    if (user) {
+      res.json({
+        email: user.email,
+        _id: user._id,
+      });
+    } else {
+      res.status(404);
+      throw new Error("User not found");
+    }
   }),
 };
 module.exports = userCtrl;
