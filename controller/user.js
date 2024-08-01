@@ -68,6 +68,7 @@ const userCtrl = {
       message: "Login success",
       _id: user._id,
       email: user.email,
+      token:token
     });
   }),
 
