@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     },
     hourly_fee: { type: Number, required: true, default:0 },
     declared_hours:{type: Number, required: true, default:0}
+    travel_Cost:{type: Number, required: true, default:0}
   },
   {
     timestamps: true,
