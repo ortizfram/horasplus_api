@@ -17,7 +17,8 @@ const userSchema = new mongoose.Schema(
       ref: "Role",
       required: false,
     },
-    hourly_fee: { type: Number, required: false },
+    hourly_fee: { type: Number, required: true, default:0 },
+    declared_hours:{type: Number, required: true, default:0}
   },
   {
     timestamps: true,
