@@ -15,8 +15,8 @@ mongoose
 
 //! Middlewares
 app.use(express.json()); //pass incoming json data from the user
-// app.use(cors({ origin: ORIGIN_URL, credentials: true }));
-app.use(cors({ origin: '*', credentials: true }));
+app.use(cors({ origin: ORIGIN_URL, credentials: true }));
+// app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser());
 
 //! Routes
@@ -27,4 +27,4 @@ app.use(errorHandler);
 
 //! Start the server
 const PORT = 8000;
-app.listen(PORT,'0.0.0.0', () => console.log(`Server is up and running on PORT ${PORT}`));
+app.listen(PORT, () => console.log(`Server is up and running on PORT ${PORT}`));
