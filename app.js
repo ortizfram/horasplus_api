@@ -5,6 +5,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { ORIGIN_URL } = require("./config");
+const orgRouter = require("./routes/organization.routes");
 const app = express();
 
 //! Connect to mongodb
@@ -21,6 +22,7 @@ app.use(cookieParser());
 
 //! Routes
 app.use("/api/users", userRouter);
+app.use("/api/organization", orgRouter);
 
 //! Error handler
 app.use(errorHandler);
