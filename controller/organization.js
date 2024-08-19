@@ -42,7 +42,7 @@ const organizationCtrl = {
 
   //! Get Organizations by User
   getOrganizations: asyncHandler(async (req, res) => {
-    const { userId } = req.body; // Extract userId from request body
+    const { userId } = req.query; // Extract userId from request body
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
@@ -92,10 +92,10 @@ const organizationCtrl = {
 
   //! Delete Organization
   deleteOrganization: asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { oid } = req.params;
 
     // Delete organization
-    const organization = await Organization.findByIdAndDelete(id);
+    const organization = await Organization.findByIdAndDelete({_id:oid});
 
     if (organization) {
       res.json({ message: "Organization deleted successfully" });
