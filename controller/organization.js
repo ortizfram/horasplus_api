@@ -19,7 +19,12 @@ const upload = multer({ storage });
 const organizationCtrl = {
   //! Create Organization
   createOrganization: asyncHandler(async (req, res) => {
-    const { name, image, userId } = req.body;
+    const { name, userId } = req.body;
+    let image = null;
+
+    if (req.file) {
+      image = req.file.path; 
+    }
 
     // Validations
     if (!name) {
