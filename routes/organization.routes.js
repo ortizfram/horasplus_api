@@ -1,9 +1,10 @@
 const express = require("express");
-const { organizationCtrl, upload } = require("../controller/organization"); // Use organizationCtrl here
+const { organizationCtrl, upload } = require("../controller/organization");
 const isAuthenticated = require("../middlewares/isAuth");
 
 const router = express.Router();
 
-router.post("/", upload.single("image"), organizationCtrl.createOrganization); // Correct reference to organizationCtrl
+router.post("/", upload.single("image"), organizationCtrl.createOrganization);
+router.get("/", organizationCtrl.getOrganizations);
 
 module.exports = router;

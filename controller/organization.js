@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Organization = require("../model/Organization");
 const multer = require("multer");
 const path = require("path");
+const { mongoose } = require("mongoose");
 
 // Configure multer for file storage
 const storage = multer.diskStorage({
@@ -41,10 +42,14 @@ const organizationCtrl = {
 
   //! Get Organizations by User
   getOrganizations: asyncHandler(async (req, res) => {
-    const userId = req.user._id; // Assuming you are getting the user ID from a middleware that attaches user to the request
+    const { userId } = req.body; // Extract userId from request body
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
 
     // Fetch organizations by user
-    const organizations = await Organization.find({ user_id: userId });
+    const organizations = await Organization.find({ user_id: new mongoose.Types.ObjectId(userId) });
 
     res.json(organizations);
   }),
