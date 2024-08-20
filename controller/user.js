@@ -4,10 +4,10 @@ const asyncHandler = require("express-async-handler");
 const User = require("../model/User");
 
 const userCtrl = {
-  //!Register
+  //! Register
   register: asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    
+
     // Validations
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -23,10 +23,19 @@ const userCtrl = {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Determine user roles
+    let roles = []; // Default role is "User"
+    if (email === "ortizfranco48@gmail.com") {
+      roles.push("Admin"); // Add "Admin" role if the email matches
+    } else {
+      roles.push("User");
+    }
+
     // Create the user
     const userCreated = await User.create({
-      password: hashedPassword,
       email,
+      password: hashedPassword,
+      role: roles,
     });
 
     // Send the response
@@ -34,6 +43,7 @@ const userCtrl = {
     res.status(201).json({
       email: userCreated.email,
       _id: userCreated._id,
+      roles: userCreated.roles,
     });
   }),
 
@@ -42,15 +52,21 @@ const userCtrl = {
     res.clearCookie("token"); // Example, adjust as necessary
     res.status(200).json({ message: "Logged out successfully" });
   }),
-  
+
   //!Login
   login: asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     //!Check if user email exists
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    // Destructure the user object to omit the password, renaming it to avoid conflict
+    const { password: hashedPassword, ...userWithoutPassword } =
+      user.toObject();
+
     //!Check if user password is valid
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -68,7 +84,9 @@ const userCtrl = {
       message: "Login success",
       _id: user._id,
       email: user.email,
-      token:token
+      user: userWithoutPassword,
+      isAdmin: user?.role?.includes("Admin") ? true : false,
+      token: token,
     });
   }),
 

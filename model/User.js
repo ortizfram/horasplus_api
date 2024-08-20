@@ -12,14 +12,14 @@ const userSchema = new mongoose.Schema(
       ref: "Organization",
       required: false,
     },
-    role_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Role",
-      required: false,
+    role: {
+      type: [String],
+      enum: ["User", "Admin"],
+      default: ["User"],
     },
-    hourly_fee: { type: Number, required: true, default:0 },
-    declared_hours:{type: Number, required: true, default:0},
-    travel_cost:{type: Number, required: true, default:0}
+    hourly_fee: { type: Number, required: true, default: 0 },
+    declared_hours: { type: Number, required: true, default: 0 },
+    travel_cost: { type: Number, required: true, default: 0 },
   },
   {
     timestamps: true,
