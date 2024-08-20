@@ -61,10 +61,10 @@ const organizationCtrl = {
 
   //! Get Organization by ID
   getOrganizationById: asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { oid } = req.params;
 
     // Fetch organization by ID
-    const organization = await Organization.findById(id);
+    const organization = await Organization.findById({_id:oid});
 
     if (organization) {
       res.json(organization);
