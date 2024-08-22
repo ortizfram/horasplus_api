@@ -3,6 +3,8 @@ const Organization = require("../model/Organization");
 const multer = require("multer");
 const path = require("path");
 const { mongoose } = require("mongoose");
+const { default: sendEmailOrgOwner } = require("../utils/sendEmailOrgOwner");
+const User = require("../model/User");
 
 // Configure multer for file storage
 const storage = multer.diskStorage({
@@ -13,7 +15,7 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   },
 });
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
 // Organization Controller
 const organizationCtrl = {
@@ -23,7 +25,10 @@ const organizationCtrl = {
     let image = null;
 
     if (req.file) {
-      image = req.file.path; 
+      console.log("Uploaded file:", req.file); // Debugging statement
+      image = req.file.path;
+    } else {
+      console.log("No file uploaded"); // Debugging statement
     }
 
     // Validations
@@ -45,16 +50,17 @@ const organizationCtrl = {
     });
   }),
 
-  //! Get Organizations by User
+  //! Get Organizations by User or get all
   getOrganizations: asyncHandler(async (req, res) => {
-    const { userId } = req.query; // Extract userId from request body
+    const { userId } = req.query; // Extract userId from query parameters
 
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
+    // If userId is provided, fetch organizations for that user
+    const query = userId
+      ? { user_id: new mongoose.Types.ObjectId(userId) }
+      : {};
 
-    // Fetch organizations by user
-    const organizations = await Organization.find({ user_id: new mongoose.Types.ObjectId(userId) });
+    // Fetch organizations based on the query
+    const organizations = await Organization.find(query);
 
     res.json(organizations);
   }),
@@ -64,7 +70,7 @@ const organizationCtrl = {
     const { oid } = req.params;
 
     // Fetch organization by ID
-    const organization = await Organization.findById({_id:oid});
+    const organization = await Organization.findById({ _id: oid });
 
     if (organization) {
       res.json(organization);
@@ -100,13 +106,32 @@ const organizationCtrl = {
     const { oid } = req.params;
 
     // Delete organization
-    const organization = await Organization.findByIdAndDelete({_id:oid});
+    const organization = await Organization.findByIdAndDelete({ _id: oid });
 
     if (organization) {
       res.json({ message: "Organization deleted successfully" });
     } else {
       res.status(404).json({ message: "Organization not found" });
     }
+  }),
+
+  bePart: asyncHandler(async (req, res) => {
+    const { oid } = req.params;
+    const { uid } = req.body;
+
+    const organization = await Organization.findById({
+      _id: new mongoose.Types.ObjectId(iod),
+    });
+    let ownerId = organization.user_id;
+    const user = User.findById({ _id: new mongoose.Types.ObjectId(uid) });
+
+    await sendEmailOrgOwner(
+      ownerId,
+      uid,
+      `Autoriza ${user.name} a entrar a ${organization.name}`,
+      `Autoriza a usuario ${user.name} | ${user.email} a ser parte de tu organizacion ${organization.name}`,
+      `<button><a href="#">Aceptar</a></button>`
+    );
   }),
 };
 module.exports = { organizationCtrl, upload };

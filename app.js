@@ -20,6 +20,7 @@ app.use(cors({ origin: ORIGIN_URL, credentials: true }));
 // app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser());
 
+
 //! Routes
 app.use("/api/users", userRouter);
 app.use("/api/organization", orgRouter);

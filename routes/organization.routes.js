@@ -8,5 +8,5 @@ router.post("/", upload.single("image"), organizationCtrl.createOrganization);
 router.get("/", organizationCtrl.getOrganizations);
 router.get("/:oid", organizationCtrl.getOrganizationById);
 router.delete("/:oid", organizationCtrl.deleteOrganization);
-
+router.post("/:oid/bePart", organizationCtrl.bePart);
 module.exports = router;
