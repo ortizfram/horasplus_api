@@ -120,17 +120,18 @@ const organizationCtrl = {
     const { uid } = req.body;
 
     const organization = await Organization.findById({
-      _id: new mongoose.Types.ObjectId(iod),
+      _id: new mongoose.Types.ObjectId(oid),
     });
     let ownerId = organization.user_id;
     const user = User.findById({ _id: new mongoose.Types.ObjectId(uid) });
 
+    let link = "http://localhost:8081/"
     await sendEmailOrgOwner(
       ownerId,
       uid,
       `Autoriza ${user.name} a entrar a ${organization.name}`,
       `Autoriza a usuario ${user.name} | ${user.email} a ser parte de tu organizacion ${organization.name}`,
-      `<button><a href="#">Aceptar</a></button>`
+      `<button><a href="${link}">Aceptar</a></button>`
     );
   }),
 };

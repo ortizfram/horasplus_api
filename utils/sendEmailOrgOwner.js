@@ -1,23 +1,23 @@
-import nodemailer from "nodemailer";
-import { NODEMAILER_EMAIL,NODEMAILER_PASS } from "../config";
-import User from "../model/User";
-import mongoose from "mongoose";
+const { NODEMAILER_EMAIL, NODEMAILER_PASS } = require("../config");
+const User = require("../model/User");
+const mongoose = require("mongoose");
 
-const sendEmailOrgOwner = async (ownerId,uid, subject, text, html) => {
+const sendEmailOrgOwner = async (ownerId, uid, subject, text, html) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: NODEMAILER_EMAIL,
-        pass: NODEMAILER_PASS, 
+        pass: NODEMAILER_PASS,
       },
     });
 
-
-    let ownerEmail = User.findById({_id:new mongoose.Types.ObjectId(ownerId)})
+    let ownerEmail = User.findById({
+      _id: new mongoose.Types.ObjectId(ownerId),
+    });
 
     const mailOptions = {
-      to: ownerEmail, 
+      to: ownerEmail,
       from: NODEMAILER_EMAIL,
       subject: subject,
       text: text,
@@ -33,4 +33,4 @@ const sendEmailOrgOwner = async (ownerId,uid, subject, text, html) => {
   }
 };
 
-export default sendEmailOrgOwner;
+module.exports = sendEmailOrgOwner;
