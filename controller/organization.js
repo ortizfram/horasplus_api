@@ -3,7 +3,7 @@ const Organization = require("../model/Organization");
 const multer = require("multer");
 const path = require("path");
 const { mongoose } = require("mongoose");
-const { default: sendEmailOrgOwner } = require("../utils/sendEmailOrgOwner");
+const sendEmailOrgOwner = require("../utils/sendEmailOrgOwner");
 const User = require("../model/User");
 
 // Configure multer for file storage
@@ -125,7 +125,7 @@ const organizationCtrl = {
     let ownerId = organization.user_id;
     const user = User.findById({ _id: new mongoose.Types.ObjectId(uid) });
 
-    let link = "http://localhost:8081/"
+    let link = "http://localhost:8081/";
     await sendEmailOrgOwner(
       ownerId,
       uid,

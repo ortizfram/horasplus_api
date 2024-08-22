@@ -1,6 +1,7 @@
 const { NODEMAILER_EMAIL, NODEMAILER_PASS } = require("../config");
 const User = require("../model/User");
 const mongoose = require("mongoose");
+const nodemailer = require("nodemailer")
 
 const sendEmailOrgOwner = async (ownerId, uid, subject, text, html) => {
   try {
