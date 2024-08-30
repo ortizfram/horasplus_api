@@ -33,22 +33,25 @@ const shiftCtrl = {
         return res.status(400).json({ message: "Invalid outTime date format" });
       }
 
+      // Extract time portion from the dates
+      const formattedInTime = inTimeDate.toLocaleTimeString('en-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour12: false });
+      const formattedOutTime = outTimeDate ? outTimeDate.toLocaleTimeString('en-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour12: false }) : null;
+
+      // Format the current date in dd/mm/yyyy format
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()}`;
+
       // Calculate total hours if outTime is provided
       let totalHours = null;
       if (outTimeDate) {
         totalHours = (outTimeDate - inTimeDate) / (1000 * 60 * 60);
       }
 
-      // Convert to Argentina time zone
-      const options = { timeZone: 'America/Argentina/Buenos_Aires', hour12: false };
-      const formattedInTime = inTimeDate.toLocaleString('en-AR', options);
-      const formattedOutTime = outTimeDate ? outTimeDate.toLocaleString('en-AR', options) : null;
-
       // Create a shift object with formatted dates
       const newShift = new Shift({
         user_id: user._id,
         organization_id: organization._id,
-        date: new Date(), // Current date or another specified date
+        date: formattedDate, // Current date or another specified date
         in: formattedInTime,
         out: formattedOutTime,
         shift_mode: shiftMode,
