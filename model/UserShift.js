@@ -12,16 +12,15 @@ const shiftSchema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: Date,
+    type: String,
     required: true,
-    default: Date.now,
   },
   in: {
-    type: Date,
+    type: String,
     required: true,
   },
   out: {
-    type: Date,
+    type: String,
     required: false, // Make out optional
   },
   shift_mode: {
