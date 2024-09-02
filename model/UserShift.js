@@ -29,7 +29,7 @@ const shiftSchema = new mongoose.Schema({
     required: true,
   },
   total_hours: {
-    type: Number,
+    type: String,
     required: false, // Make total_hours optional
   },
 });
