@@ -134,5 +134,27 @@ const organizationCtrl = {
       `<button><a href="${link}">Aceptar</a></button>`
     );
   }),
+
+  getEmployees : asyncHandler(async (req, res) => {
+    const { oid } = req.params;
+  
+    if (!mongoose.Types.ObjectId.isValid(oid)) {
+      return res.status(400).json({ message: "Invalid organization ID" });
+    }
+  
+    try {
+      const organization = await Organization.findById(oid);
+      if (organization) {
+        const employees = await User.find({ organization_id: oid }).lean(); // Convert documents to plain objects
+        res.json(employees);
+      } else {
+        res.status(404).json({ message: "Organization not found" });
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }),
+  
 };
 module.exports = { organizationCtrl, upload };
