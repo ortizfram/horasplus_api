@@ -10,4 +10,5 @@ router.get("/:oid", organizationCtrl.getOrganizationById);
 router.get("/:oid/employees", organizationCtrl.getEmployees);
 router.delete("/:oid", organizationCtrl.deleteOrganization);
 router.post("/:oid/bePart", organizationCtrl.bePart);
+router.put("/:oid/:uid", organizationCtrl.acceptEmployee);
 module.exports = router;
