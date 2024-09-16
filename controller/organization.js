@@ -144,22 +144,27 @@ const organizationCtrl = {
   //! Be Part of an Organization
   bePart: async (req, res) => {
     try {
-      const { oid, uid } = req.params;
+      const { oid } = req.params;
+      const { uid } = req.body;
 
-      const organization = await Organization.findById(oid);
-      let ownerId = organization.user_id;
-      const user = await User.findById(uid);
+      console.log("Received uid:", uid); // Log the uid for debugging
 
-      let link = `http://localhost:8081/${oid}/${uid}`;
-      await sendEmailOrgOwner(
-        ownerId,
-        uid,
-        `Autoriza ${user.name} a entrar a ${organization.name}`,
-        `Autoriza a usuario ${user.name} | ${user.email} a ser parte de tu organizacion ${organization.name}`,
-        `<button><a href="${link}">Aceptar</a></button>`
+      // Find the organization by ID
+      const organization = await Organization.findById(
+        new mongoose.Types.ObjectId(oid)
       );
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
 
-      res.status(200).json({ message: "Request sent to organization owner." });
+      // Find the user by ID
+      const user = await User.findById(new mongoose.Types.ObjectId(uid));
+      if (!user) {
+        console.log("User not found:", uid); // Log if the user is not found
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Continue with the rest of the logic...
     } catch (error) {
       console.error("Error sending request:", error);
       res.status(500).json({ message: "Internal server error" });
