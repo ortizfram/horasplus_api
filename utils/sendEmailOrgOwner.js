@@ -1,7 +1,7 @@
 const { NODEMAILER_EMAIL, NODEMAILER_PASS } = require("../config");
 const User = require("../model/User");
 const mongoose = require("mongoose");
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
 
 const sendEmailOrgOwner = async (ownerId, uid, subject, text, html) => {
   try {
@@ -13,12 +13,15 @@ const sendEmailOrgOwner = async (ownerId, uid, subject, text, html) => {
       },
     });
 
-    let ownerEmail = User.findById({
-      _id: new mongoose.Types.ObjectId(ownerId),
-    });
+    // Await the result of User.findById
+    let owner = await User.findById(ownerId);
+
+    if (!owner) {
+      throw new Error("Owner not found");
+    }
 
     const mailOptions = {
-      to: ownerEmail,
+      to: owner.email, // Access the owner's email
       from: NODEMAILER_EMAIL,
       subject: subject,
       text: text,
