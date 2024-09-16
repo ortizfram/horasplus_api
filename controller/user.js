@@ -72,9 +72,19 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log(`Login request for email: ${email}`);
+
     // Check if the user exists
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      console.error("User not found");
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Compare the password
+    const passwordMatches = await bcrypt.compare(password, user.password);
+    if (!passwordMatches) {
+      console.error("Password mismatch");
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
@@ -87,20 +97,24 @@ const login = async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
+    console.log("Login successful");
+    
     // Respond with user and token
     res.json({
       message: "Login successful",
       user: {
         _id: user._id,
         email: user.email,
-        isAdmin: user.roles.includes("Admin"),
+        isAdmin: user.role.includes("Admin"),
       },
       token,
     });
   } catch (error) {
+    console.error("Server error during login:", error); // Log the error
     res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 // Google Login
 const googleLogin = async (req, res) => {
