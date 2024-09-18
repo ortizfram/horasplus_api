@@ -144,15 +144,13 @@ const organizationCtrl = {
   //! Be Part of an Organization
   bePart: async (req, res) => {
     try {
-      const { oid } = req.params;
-      const { uid } = req.body;
+      const { oid } = req.params; // Organization ID from the URL
+      const { uid } = req.body;   // User ID from the request body
 
-      console.log("Received uid:", uid); // Log the uid for debugging
+      console.log("Received uid:", uid);
 
       // Find the organization by ID
-      const organization = await Organization.findById(
-        new mongoose.Types.ObjectId(oid)
-      );
+      const organization = await Organization.findById(new mongoose.Types.ObjectId(oid));
       if (!organization) {
         return res.status(404).json({ message: "Organization not found" });
       }
@@ -164,9 +162,16 @@ const organizationCtrl = {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Continue with the rest of the logic...
+      // Update user's organization_id with the organization ID
+      user.organization_id = organization._id;
+      await user.save();
+
+      res.status(200).json({
+        message: "User successfully associated with the organization",
+        user,
+      });
     } catch (error) {
-      console.error("Error sending request:", error);
+      console.error("Error during user association:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   },

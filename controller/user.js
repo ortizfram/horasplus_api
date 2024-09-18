@@ -80,6 +80,9 @@ const login = async (req, res) => {
       console.error("User not found");
       return res.status(401).json({ message: "Invalid credentials" });
     }
+    
+    const userNoPass = { ...user.toObject() };
+    delete userNoPass.password;
 
     // Compare the password
     const passwordMatches = await bcrypt.compare(password, user.password);
@@ -103,6 +106,7 @@ const login = async (req, res) => {
     res.json({
       message: "Login successful",
       user: {
+        data:userNoPass,
         _id: user._id,
         email: user.email,
         isAdmin: user.role.includes("Admin"),
