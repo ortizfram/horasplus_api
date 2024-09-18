@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../model/User");
 const passport = require("passport");
+const { mongoose } = require("mongoose");
 
 // Create JWT token function
 const createToken = (userId) => {
@@ -80,7 +81,7 @@ const login = async (req, res) => {
       console.error("User not found");
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    
+
     const userNoPass = { ...user.toObject() };
     delete userNoPass.password;
 
@@ -101,12 +102,12 @@ const login = async (req, res) => {
     });
 
     console.log("Login successful");
-    
+
     // Respond with user and token
     res.json({
       message: "Login successful",
       user: {
-        data:userNoPass,
+        data: userNoPass,
         _id: user._id,
         email: user.email,
         isAdmin: user.role.includes("Admin"),
@@ -119,7 +120,27 @@ const login = async (req, res) => {
   }
 };
 
+const getEmployee = async (req, res) => {
+  try {
+    const { uid } = req.params;
 
+    // Check if the uid is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(uid)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    // Fetch the employee using the valid ObjectId
+    const employee = await User.findById(uid);
+    if (employee) {
+      res.json(employee);
+    } else {
+      res.status(404).json({ message: "Employee not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching employee:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 // Google Login
 const googleLogin = async (req, res) => {
   try {
@@ -179,6 +200,7 @@ module.exports = {
   profile,
   register,
   login,
+  getEmployee,
   googleLogin,
   facebookLogin,
   logout,

@@ -9,6 +9,7 @@ router.post("/register", userCtrl.register);
 router.post("/login", userCtrl.login);
 router.post("/logout", userCtrl.logout);
 router.get("/profile", isAuthenticated, userCtrl.profile);
+router.get("/:uid", userCtrl.getEmployee);
 
 // passport login sys
 router.get(
