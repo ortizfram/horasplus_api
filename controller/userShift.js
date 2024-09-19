@@ -145,6 +145,32 @@ const shiftCtrl = {
       res.status(500).json({ message: "Internal server error" });
     }
   },
+  userReport: async (req, res) => {
+    try {
+      const { uid } = req.params;
+      const { startDate, endDate } = req.query; // Query params from frontend
+
+      if (!startDate || !endDate) {
+        return res
+          .status(400)
+          .json({ message: "Please provide both startDate and endDate" });
+      }
+      console.log(startDate, endDate)
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      const shifts = await Shift.find({
+        employeeId: uid,
+        shiftDate: { $gte: start, $lte: end },
+      });
+
+      res.json(shifts);
+    } catch (error) {
+      console.error("Error fetching shifts:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
 };
 
 module.exports = { shiftCtrl };
