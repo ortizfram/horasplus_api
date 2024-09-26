@@ -7,6 +7,7 @@ const shiftCtrl = {
   createShift: async (req, res) => {
     try {
       const { uid, oid } = req.params;
+      console.log("uid ",uid)
       const { inTime, outTime, shiftMode } = req.body;
 
       const user = await User.findById(uid);
