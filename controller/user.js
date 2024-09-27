@@ -27,6 +27,33 @@ const profile = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  const { uid } = req.params; // Extract user ID from the URL
+  const updateData = req.body; // Data from the request body
+
+  try {
+    // Prevent updating the _id field
+    if (updateData._id) {
+      return res.status(400).json({ error: "Cannot update user ID (_id)" });
+    }
+
+    // Find user by ID and update fields
+    const updatedUser = await User.findByIdAndUpdate(uid, updateData, {
+      new: true, // Return the updated document
+      runValidators: true, // Validate the data before updating
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(updatedUser); // Return updated user
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 // Register
 const register = async (req, res) => {
   try {
@@ -204,4 +231,5 @@ module.exports = {
   googleLogin,
   facebookLogin,
   logout,
+  updateProfile,
 };
