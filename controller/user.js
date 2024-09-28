@@ -57,10 +57,10 @@ const updateProfile = async (req, res) => {
 // Register
 const register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstname,lastname } = req.body;
 
-    // Validate input
-    if (!email || !password) {
+     // Validate input
+     if (!email || !password || !firstname || !lastname) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -82,6 +82,8 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
       roles,
+      firstname,
+      lastname
     });
 
     // Respond with user details
