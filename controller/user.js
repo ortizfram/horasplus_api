@@ -1,17 +1,9 @@
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../model/User");
 const passport = require("passport");
 const { mongoose } = require("mongoose");
-
-// Create JWT token function
-const createToken = (userId) => {
-  return jwt.sign(
-    { id: userId },
-    process.env.JWT_SECRET || "defaultSecretKey",
-    { expiresIn: "30d" }
-  );
-};
 
 // Profile
 const profile = async (req, res) => {
@@ -31,17 +23,18 @@ const updateProfile = async (req, res) => {
   const { uid } = req.params; // Extract user ID from the URL
   const updateData = req.body; // Data from the request body
 
+  console.log("updateData: ", updateData);
+  console.log("uid: ", uid);
   try {
-    // Prevent updating the _id field
-    if (updateData._id) {
-      return res.status(400).json({ error: "Cannot update user ID (_id)" });
-    }
-
     // Find user by ID and update fields
-    const updatedUser = await User.findByIdAndUpdate(uid, updateData, {
-      new: true, // Return the updated document
-      runValidators: true, // Validate the data before updating
-    });
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(uid) },
+      updateData,
+      {
+        new: true, // Return the updated document
+        runValidators: true, // Validate the data before updating
+      }
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
@@ -54,13 +47,22 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// Create JWT token function
+const createToken = (userId) => {
+  return jwt.sign(
+    { id: userId },
+    process.env.JWT_SECRET || "defaultSecretKey",
+    { expiresIn: "30d" }
+  );
+};
+
 // Register
 const register = async (req, res) => {
   try {
-    const { email, password, firstname,lastname } = req.body;
+    const { email, password, firstname, lastname } = req.body;
 
-     // Validate input
-     if (!email || !password || !firstname || !lastname) {
+    // Validate input
+    if (!email || !password || !firstname || !lastname) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -83,7 +85,7 @@ const register = async (req, res) => {
       password: hashedPassword,
       roles,
       firstname,
-      lastname
+      lastname,
     });
 
     // Respond with user details

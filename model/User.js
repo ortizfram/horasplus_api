@@ -1,3 +1,4 @@
+
   const mongoose = require("mongoose");
 
   const userSchema = new mongoose.Schema(
@@ -20,6 +21,9 @@
       hourly_fee: { type: Number, required: true, default: 0 },
       declared_hours: { type: Number, required: true, default: 0 },
       travel_cost: { type: Number, required: true, default: 0 },
+      bonus_prize: { type: Number, required: false, default: 0 },
+      cash_advance: { type: Number, required: false, default: 0 },
+      cash_a_date: { type: String, required: false, default: 0 },
     },
     {
       timestamps: true,
