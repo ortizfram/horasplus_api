@@ -141,11 +141,10 @@ const organizationCtrl = {
     }
   },
 
-  //! Be Part of an Organization
+  //? Be Part of an Organization
   bePart: async (req, res) => {
     try {
-      const { oid } = req.params; // Organization ID from the URL
-      const { uid } = req.body;   // User ID from the request body
+      const { oid, uid } = req.params; // Organization ID from the URL
 
       console.log("Received uid:", uid);
 
@@ -176,7 +175,7 @@ const organizationCtrl = {
     }
   },
 
-  //! Accept Employee
+  //? Accept Employee
   acceptEmployee: async (req, res) => {
     try {
       const { oid, uid } = req.params;
