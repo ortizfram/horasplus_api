@@ -144,12 +144,13 @@ const organizationCtrl = {
   //? Be Part of an Organization
   bePart: async (req, res) => {
     try {
-      const { oid, uid } = req.params; // Organization ID from the URL
-
-      console.log("Received uid:", uid);
+      const { oid } = req.params; // Organization ID from the URL
+      const { uid } = req.body; // User ID from the request body
 
       // Find the organization by ID
-      const organization = await Organization.findById(new mongoose.Types.ObjectId(oid));
+      const organization = await Organization.findById(
+        new mongoose.Types.ObjectId(oid)
+      );
       if (!organization) {
         return res.status(404).json({ message: "Organization not found" });
       }
@@ -157,7 +158,6 @@ const organizationCtrl = {
       // Find the user by ID
       const user = await User.findById(new mongoose.Types.ObjectId(uid));
       if (!user) {
-        console.log("User not found:", uid); // Log if the user is not found
         return res.status(404).json({ message: "User not found" });
       }
 
