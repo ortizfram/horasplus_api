@@ -161,14 +161,33 @@ const organizationCtrl = {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Update user's organization_id with the organization ID
-      user.organization_id = organization._id;
-      await user.save();
+      // Check if the user already belongs to an organization
+      if (user.organization_id) {
+        if (user.organization_id.toString() === oid) {
+          return res
+            .status(400)
+            .json({ message: "User already belongs to this organization" });
+        } else {
+          // If the user is changing organizations, update the organization_id
+          user.organization_id = organization._id;
+          await user.save();
 
-      res.status(200).json({
-        message: "User successfully associated with the organization",
-        user,
-      });
+          return res.status(200).json({
+            message: "User successfully changed organization",
+            user,
+          });
+        }
+      } else {
+        // If the user doesn't have an organization, associate them with the new one
+        user.organization_id = organization._id;
+        await user.save();
+
+        return res.status(200).json({
+          message: "User successfully associated with the organization",
+          user,
+        });
+      }
+
     } catch (error) {
       console.error("Error during user association:", error);
       res.status(500).json({ message: "Internal server error" });
