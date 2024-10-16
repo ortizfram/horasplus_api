@@ -22,6 +22,7 @@ const organizationCtrl = {
   createOrganization: async (req, res) => {
     try {
       const { name, userId } = req.body;
+      console.log("userId ",userId)
       let image = null;
 
       if (req.file) {
@@ -40,7 +41,7 @@ const organizationCtrl = {
 
       // Create the organization
       const organization = await Organization.create({
-        user_id: userId,
+        user_id: new mongoose.Types.ObjectId(userId),
         name,
         image,
       });
