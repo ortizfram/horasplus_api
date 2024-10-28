@@ -145,6 +145,86 @@ const shiftCtrl = {
     }
   },
 
+  updateShift: async (req, res) => {
+    const { uid } = req.params;
+    const { date, inTime, outTime,mode } = req.body;
+
+    try {
+      // Buscar el turno por el ID del usuario y la fecha
+      const shift = await Shift.findOne({
+        user_id: uid,
+        date: new Date(date).toISOString().split("T")[0], // Asegúrate de que la fecha esté en el formato correcto
+      });
+
+      if (!shift) {
+        return res
+          .status(404)
+          .json({ message: "Shift not found for the specified date" });
+      }
+
+      // Actualizar tiempos de entrada y salida si están en la solicitud
+      if (inTime) shift.in = inTime; // hh:mm:ss
+      if (outTime) shift.out = outTime; // hh:mm:ss
+      if (mode) shift.shift_mode = mode
+
+      // Guardar los cambios iniciales
+      await shift.save();
+
+      // Calcular `total_hours` solo si ambos `in` y `out` están definidos
+      if (shift.in && shift.out) {
+        const justDate = shift.date.toISOString().split("T")[0]; // Extraer solo la parte de la fecha
+        const inDate = new Date(`${justDate}T${shift.in}`); // Combinar fecha y hora de entrada
+        const outDate = new Date(`${justDate}T${shift.out}`); // Combinar fecha y hora de salida
+
+        const diffMs = outDate - inDate;
+
+        if (diffMs >= 0) {
+          // Asegúrate de que la diferencia sea válida
+          const hours = Math.floor(diffMs / (1000 * 60 * 60));
+          const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+          shift.total_hours = `${hours}h ${minutes}m`;
+        } else {
+          shift.total_hours = "0h 0m"; // Si outTime es menor que inTime
+        }
+      }
+
+      // Guardar el turno actualizado con `total_hours`
+      await shift.save();
+
+      res.status(200).json({ message: "Shift updated successfully", shift });
+    } catch (error) {
+      console.error("Error updating shift:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  getAShift: async (req, res) => {
+    const { uid } = req.params;
+    const { date } = req.query; // Pass the date as a query parameter
+
+    console.log("params date: ", date);
+    console.log("ISOSString date: ", new Date(date).toISOString());
+
+    try {
+      const shift = await Shift.findOne({
+        user_id: new mongoose.Types.ObjectId(uid),
+        date: new Date(date).toISOString(), // Format date to YYYY-MM-DD
+      });
+
+      if (!shift) {
+        return res
+          .status(404)
+          .json({ message: "Shift not found for the specified date" });
+      }
+
+      res.status(200).json(shift);
+    } catch (error) {
+      console.error("Error fetching shift:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
   userReport: async (req, res) => {
     try {
       const { uid } = req.params;
