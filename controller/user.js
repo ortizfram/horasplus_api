@@ -141,6 +141,7 @@ const login = async (req, res) => {
         _id: user._id,
         email: user.email,
         isAdmin: user.role.includes("Admin"),
+        isSuperAdmin: user.role.includes("Super"),
       },
       token,
     });
