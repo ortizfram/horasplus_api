@@ -8,6 +8,7 @@ const { ORIGIN_URL } = require("./config");
 const orgRouter = require("./routes/organization.routes");
 const shiftRouter = require("./routes/shift.routes");
 var multer = require("multer");
+const User = require("./model/User");
 const app = express();
 
 //! Connect to mongodb

@@ -227,7 +227,18 @@ const logout = async (req, res) => {
   }
 };
 
+const getEmployeesAndOwners = async (req, res) => {
+  try {
+    const users = await User.find(); // Fetch all users
+    res.json(users); // Send all users in the response
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
+  getEmployeesAndOwners,
   profile,
   register,
   login,

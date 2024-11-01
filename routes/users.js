@@ -11,6 +11,7 @@ router.post("/logout", userCtrl.logout);
 router.get("/profile", isAuthenticated, userCtrl.profile);
 router.put("/:uid/update", userCtrl.updateProfile);
 router.get("/:uid", userCtrl.getEmployee);
+router.get("/", userCtrl.getEmployeesAndOwners);
 
 // passport login sys
 router.get(
