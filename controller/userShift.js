@@ -3,6 +3,19 @@ const User = require("../model/User");
 const Shift = require("../model/UserShift");
 const { mongoose } = require("mongoose");
 
+// Function to calculate total hours
+function calculateTotalHours(inTime, outTime) {
+  const inDate = new Date(`1970-01-01T${inTime}`);
+  const outDate = new Date(`1970-01-01T${outTime}`);
+  const diffMs = outDate - inDate;
+  if (diffMs >= 0) {
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+  }
+  return "0h 0m";
+}
+
 const shiftCtrl = {
   createShift: async (req, res) => {
     try {
@@ -145,51 +158,69 @@ const shiftCtrl = {
     }
   },
 
-  updateShift: async (req, res) => {
+  // Standalone function for addShiftFromUpdateView
+  addShiftFromUpdateView: async (req, res) => {
     const { uid } = req.params;
-    const { date, inTime, outTime,mode } = req.body;
+    const { date, inTime, outTime, mode, organization_id } = req.body;
 
     try {
-      // Buscar el turno por el ID del usuario y la fecha
+      const newShift = new Shift({
+        user_id: uid,
+        organization_id: new mongoose.Types.ObjectId(organization_id),
+        date: new Date(date).toISOString().split("T")[0],
+        in: inTime || null,
+        out: outTime || null,
+        shift_mode: mode || "regular",
+        total_hours:
+          inTime && outTime ? calculateTotalHours(inTime, outTime) : "0h 0m",
+      });
+
+      await newShift.save();
+      res
+        .status(201)
+        .json({ message: "Shift created successfully", shift: newShift });
+    } catch (error) {
+      console.error("Error creating shift:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  // updateShift method
+  updateShift: async (req, res) => {
+    const { uid } = req.params;
+    const { date, inTime, outTime, mode } = req.body;
+
+    try {
       const shift = await Shift.findOne({
         user_id: uid,
-        date: new Date(date).toISOString().split("T")[0], // Asegúrate de que la fecha esté en el formato correcto
+        date: new Date(date).toISOString().split("T")[0],
       });
 
       if (!shift) {
-        return res
-          .status(404)
-          .json({ message: "Shift not found for the specified date" });
+        return await shiftCtrl.addShiftFromUpdateView(req, res); // Call standalone function
       }
 
-      // Actualizar tiempos de entrada y salida si están en la solicitud
-      if (inTime) shift.in = inTime; // hh:mm:ss
-      if (outTime) shift.out = outTime; // hh:mm:ss
-      if (mode) shift.shift_mode = mode
+      if (inTime) shift.in = inTime;
+      if (outTime) shift.out = outTime;
+      if (mode) shift.shift_mode = mode;
 
-      // Guardar los cambios iniciales
       await shift.save();
 
-      // Calcular `total_hours` solo si ambos `in` y `out` están definidos
       if (shift.in && shift.out) {
-        const justDate = shift.date.toISOString().split("T")[0]; // Extraer solo la parte de la fecha
-        const inDate = new Date(`${justDate}T${shift.in}`); // Combinar fecha y hora de entrada
-        const outDate = new Date(`${justDate}T${shift.out}`); // Combinar fecha y hora de salida
+        const justDate = shift.date.toISOString().split("T")[0];
+        const inDate = new Date(`${justDate}T${shift.in}`);
+        const outDate = new Date(`${justDate}T${shift.out}`);
 
         const diffMs = outDate - inDate;
-
         if (diffMs >= 0) {
-          // Asegúrate de que la diferencia sea válida
           const hours = Math.floor(diffMs / (1000 * 60 * 60));
           const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
           shift.total_hours = `${hours}h ${minutes}m`;
         } else {
-          shift.total_hours = "0h 0m"; // Si outTime es menor que inTime
+          shift.total_hours = "0h 0m";
         }
       }
 
-      // Guardar el turno actualizado con `total_hours`
       await shift.save();
 
       res.status(200).json({ message: "Shift updated successfully", shift });
