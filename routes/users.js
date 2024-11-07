@@ -12,7 +12,9 @@ router.get("/profile", isAuthenticated, userCtrl.profile);
 router.put("/:uid/update", userCtrl.updateProfile);
 router.get("/:uid", userCtrl.getEmployee);
 router.get("/", userCtrl.getEmployeesAndOwners);
+router.post("/request-password-reset", userCtrl.requestPasswordReset);
 
+  
 // passport login sys
 router.get(
   "/google",
