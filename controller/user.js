@@ -10,8 +10,7 @@ const {
   NODEMAILER_PASS,
 } = require("../config");
 const nodemailer = require("nodemailer");
-const crypto = require('crypto');
-
+const crypto = require("crypto");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -248,7 +247,9 @@ const requestPasswordReset = async (req, res) => {
   const { email } = req.body;
 
   try {
-    console.log(`Solicitud de restablecimiento de contraseña para el email: ${email}`);
+    console.log(
+      `Solicitud de restablecimiento de contraseña para el email: ${email}`
+    );
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -269,11 +270,13 @@ const requestPasswordReset = async (req, res) => {
       console.log("Token y expiración guardados en el usuario");
     } catch (saveError) {
       console.error("Error al guardar el token en el usuario:", saveError);
-      return res.status(500).json({ message: "Error al guardar el token", error: saveError });
+      return res
+        .status(500)
+        .json({ message: "Error al guardar el token", error: saveError });
     }
 
     // Enviar el correo electrónico con el enlace de restablecimiento
-    const resetUrl = `${ORIGIN_URL}/auth/reset/${resetToken}`;
+    const resetUrl = `${ORIGIN_URL}/auth/reset?token=${resetToken}`;
     const mailOptions = {
       from: BRAND_EMAIL,
       to: user.email,
@@ -284,19 +287,28 @@ const requestPasswordReset = async (req, res) => {
     try {
       await transporter.sendMail(mailOptions);
       console.log(`Correo de recuperación enviado a ${user.email}`);
-      res.status(201).json({ message: "Correo de recuperación enviado" })
+      res.status(201).json({ message: "Correo de recuperación enviado" });
     } catch (mailError) {
       console.error("Error al enviar el correo de recuperación:", mailError);
-      res.status(500).json({ message: "Error al enviar el correo de recuperación", error: mailError });
+      res
+        .status(500)
+        .json({
+          message: "Error al enviar el correo de recuperación",
+          error: mailError,
+        });
     }
   } catch (error) {
-    console.error("Error en el proceso de solicitud de restablecimiento de contraseña:", error);
+    console.error(
+      "Error en el proceso de solicitud de restablecimiento de contraseña:",
+      error
+    );
     res.status(500).json({ message: "Error del servidor", error });
   }
 };
 
 const updatePassword = async (req, res) => {
-  const { token, newPassword } = req.body;
+  const { newPassword,token } = req.body;
+  console.log(token)
 
   try {
     // Find user with matching reset token and check expiration
@@ -326,7 +338,6 @@ const updatePassword = async (req, res) => {
     res.status(500).json({ message: "Error del servidor", error });
   }
 };
-
 
 const getEmployeesAndOwners = async (req, res) => {
   try {
