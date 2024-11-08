@@ -10,6 +10,8 @@ const {
   NODEMAILER_PASS,
 } = require("../config");
 const nodemailer = require("nodemailer");
+const crypto = require('crypto');
+
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -271,7 +273,7 @@ const requestPasswordReset = async (req, res) => {
     }
 
     // Enviar el correo electrónico con el enlace de restablecimiento
-    const resetUrl = `${ORIGIN_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${ORIGIN_URL}/auth/reset/${resetToken}`;
     const mailOptions = {
       from: BRAND_EMAIL,
       to: user.email,
@@ -282,13 +284,45 @@ const requestPasswordReset = async (req, res) => {
     try {
       await transporter.sendMail(mailOptions);
       console.log(`Correo de recuperación enviado a ${user.email}`);
-      res.json({ message: "Correo de recuperación enviado" });
+      res.status(201).json({ message: "Correo de recuperación enviado" })
     } catch (mailError) {
       console.error("Error al enviar el correo de recuperación:", mailError);
       res.status(500).json({ message: "Error al enviar el correo de recuperación", error: mailError });
     }
   } catch (error) {
     console.error("Error en el proceso de solicitud de restablecimiento de contraseña:", error);
+    res.status(500).json({ message: "Error del servidor", error });
+  }
+};
+
+const updatePassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Find user with matching reset token and check expiration
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiry: { $gt: Date.now() }, // Ensure token hasn't expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Token inválido o expirado" });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update user's password and clear reset token fields
+    user.password = hashedPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpiry = null;
+
+    await user.save();
+
+    res.status(200).json({ message: "Contraseña actualizada con éxito" });
+  } catch (error) {
+    console.error("Error al actualizar contraseña:", error);
     res.status(500).json({ message: "Error del servidor", error });
   }
 };
@@ -305,6 +339,7 @@ const getEmployeesAndOwners = async (req, res) => {
 };
 
 module.exports = {
+  updatePassword,
   getEmployeesAndOwners,
   profile,
   register,

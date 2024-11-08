@@ -15,7 +15,7 @@
       },
       role: {
         type: [String],
-        enum: ["User", "Admin"],
+        enum: ["User", "Admin", "Super"],
         default: ["User"],
       },
       hourly_fee: { type: Number, required: true, default: 0 },
@@ -24,6 +24,8 @@
       bonus_prize: { type: Number, required: false, default: 0 },
       cash_advance: { type: Number, required: false, default: 0 },
       cash_a_date: { type: String, required: false, default: 0 },
+      resetPasswordToken: { type: String, default: null },
+      resetPasswordExpiry: { type: Date, default: null },
     },
     {
       timestamps: true,
