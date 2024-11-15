@@ -71,7 +71,7 @@ const createToken = (userId) => {
   );
 };
 
-// Register
+// Register controller
 const register = async (req, res) => {
   try {
     const { email, password, firstname, lastname } = req.body;
@@ -114,7 +114,7 @@ const register = async (req, res) => {
   }
 };
 
-// Login
+// Login controller
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -125,7 +125,7 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       console.error("User not found");
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Credenciales Invalidas" });
     }
 
     const userNoPass = { ...user.toObject() };
@@ -135,7 +135,7 @@ const login = async (req, res) => {
     const passwordMatches = await bcrypt.compare(password, user.password);
     if (!passwordMatches) {
       console.error("Password mismatch");
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Credenciales Invalidas" });
     }
 
     // Create a JWT token
