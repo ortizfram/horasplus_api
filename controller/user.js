@@ -73,6 +73,7 @@ const createToken = (userId) => {
 
 // Register controller
 const register = async (req, res) => {
+  console.log("register controller")
   try {
     const { email, password, firstname, lastname } = req.body;
 
@@ -116,6 +117,8 @@ const register = async (req, res) => {
 
 // Login controller
 const login = async (req, res) => {
+  console.log("login controller")
+
   try {
     const { email, password } = req.body;
 
