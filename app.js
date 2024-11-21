@@ -9,8 +9,6 @@ const orgRouter = require("./routes/organization.routes");
 const shiftRouter = require("./routes/shift.routes");
 var multer = require("multer");
 const { MONGO_URI } = require("./config");
-require('dotenv').config();
-
 
 const User = require("./model/User");
 const app = express();
