@@ -8,12 +8,14 @@ const { ORIGIN_URL } = require("./config");
 const orgRouter = require("./routes/organization.routes");
 const shiftRouter = require("./routes/shift.routes");
 var multer = require("multer");
+const { MONGO_URI } = require("./config");
+
 const User = require("./model/User");
 const app = express();
 
 //! Connect to mongodb
 mongoose
-  .connect("mongodb://localhost:27017/auth-api")
+  .connect(MONGO_URI)
   .then(() => console.log("Db connected successfully"))
   .catch((e) => console.log(e));
 
