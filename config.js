@@ -1,6 +1,8 @@
-const ORIGIN_URL = "http://localhost:8081"; //10.0.2.2 for android //localhost for browser
-const NODEMAILER_EMAIL = "wagewise.sender@gmail.com";
-const NODEMAILER_PASS = "wzof biij czik zuux";
-const BRAND_EMAIL="horasplus.info@gmail.com"
+require('dotenv').config();
 
-module.exports = { BRAND_EMAIL,ORIGIN_URL, NODEMAILER_EMAIL, NODEMAILER_PASS };
+const ORIGIN_URL = process.env.ORIGIN_URL;
+const NODEMAILER_EMAIL = process.env.NODEMAILER_EMAIL;
+const NODEMAILER_PASS = process.env.NODEMAILER_PASS;
+const BRAND_EMAIL = process.env.BRAND_EMAIL;
+
+module.exports = { BRAND_EMAIL, ORIGIN_URL, NODEMAILER_EMAIL, NODEMAILER_PASS };
