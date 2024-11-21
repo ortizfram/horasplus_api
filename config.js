@@ -6,4 +6,10 @@ const NODEMAILER_PASS = process.env.NODEMAILER_PASS;
 const BRAND_EMAIL = process.env.BRAND_EMAIL;
 const MONGO_URI = process.env.MONGO_URI;
 
-module.exports = { MONGO_URI,BRAND_EMAIL, ORIGIN_URL, NODEMAILER_EMAIL, NODEMAILER_PASS };
+module.exports = {
+  MONGO_URI,
+  BRAND_EMAIL,
+  ORIGIN_URL,
+  NODEMAILER_EMAIL,
+  NODEMAILER_PASS,
+};

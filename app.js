@@ -9,6 +9,8 @@ const orgRouter = require("./routes/organization.routes");
 const shiftRouter = require("./routes/shift.routes");
 var multer = require("multer");
 const { MONGO_URI } = require("./config");
+require('dotenv').config();
+
 
 const User = require("./model/User");
 const app = express();
@@ -16,7 +18,7 @@ const app = express();
 //! Connect to mongodb
 mongoose
   .connect(MONGO_URI)
-  .then(() => console.log("Db connected successfully"))
+  .then(() => console.log("Db connected successfully\n\n",process.cwd(),"\n\n",process.env))
   .catch((e) => console.log(e));
 
 //! Middlewares
