@@ -21,8 +21,8 @@ mongoose
 
 //! Middlewares
 app.use(express.json()); //pass incoming json data from the user
-// app.use(cors({ origin: ORIGIN_URL, credentials: true }));
-app.use(cors({ origin: '*', credentials: true }));
+app.use(cors({ origin: ORIGIN_URL, credentials: true }));
+// app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser());
 
 var upload = multer({ dest: "./uploads" });
