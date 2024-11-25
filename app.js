@@ -26,6 +26,13 @@ app.options("*", cors({
   credentials: true,
 }));
 
+app.use((req, res, next) => {
+  console.log(`Origin: ${req.headers.origin}`);
+  console.log(`Method: ${req.method}`);
+  next();
+});
+
+
 // app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser());
 
