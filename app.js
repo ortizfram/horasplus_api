@@ -16,7 +16,7 @@ const app = express();
 //! Connect to mongodb
 mongoose
   .connect(MONGO_URI)
-  .then(() => console.log("Db connected successfully\n\n",process.cwd(),"\n\n",process.env))
+  .then(() => console.log("Db connected successfully"))
   .catch((e) => console.log(e));
 
 //! Middlewares
