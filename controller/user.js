@@ -117,15 +117,14 @@ const register = async (req, res) => {
 
 // Login controller
 const login = async (req, res) => {
-  console.log("login controller")
+  console.log("Login controller");
 
   try {
     const { email, password } = req.body;
-
     console.log(`Login request for email: ${email}`);
 
-    // Check if the user exists
-    const user = await User.findOne({ email });
+    // Check if the user exists and populate organization_id
+    const user = await User.findOne({ email }).populate("organization_id");
     if (!user) {
       console.error("User not found");
       return res.status(401).json({ message: "Credenciales Invalidas" });
@@ -156,7 +155,10 @@ const login = async (req, res) => {
     res.json({
       message: "Login successful",
       user: {
-        data: userNoPass,
+        data: {
+          ...userNoPass,
+          organization_id: user.organization_id || null, // Include populated organization_id
+        },
         _id: user._id,
         email: user.email,
         isAdmin: user.role.includes("Admin"),
@@ -169,6 +171,7 @@ const login = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 const getEmployee = async (req, res) => {
   try {
