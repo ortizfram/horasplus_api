@@ -97,7 +97,7 @@ const organizationCtrl = {
       console.log("oid ",oid)
 
       // Fetch organization by ID
-      const organization = await Organization.findById(oid);
+      const organization = await Organization.findById(new mongoose.Types.ObjectId(oid));
 
       if (organization) {
         console.log("organization ",organization)
