@@ -22,7 +22,7 @@ const organizationCtrl = {
   createOrganization: async (req, res) => {
     try {
       const { name, userId } = req.body;
-      console.log("userId ",userId)
+      console.log("userId ", userId);
       let image = null;
 
       if (req.file) {
@@ -45,6 +45,19 @@ const organizationCtrl = {
         name,
         image,
       });
+
+      // Update user's organization_id
+      const userUpdateResult = await User.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(userId),
+        { organization_id: organization._id },
+        { new: true }
+      );
+
+      if (!userUpdateResult) {
+        return res.status(404).json({
+          message: "User not found to update organization_id",
+        });
+      }
 
       // Send the response
       res.status(201).json({
@@ -188,7 +201,6 @@ const organizationCtrl = {
           user,
         });
       }
-
     } catch (error) {
       console.error("Error during user association:", error);
       res.status(500).json({ message: "Internal server error" });
