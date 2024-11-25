@@ -94,13 +94,14 @@ const organizationCtrl = {
   getOrganizationById: async (req, res) => {
     try {
       const { oid } = req.params;
-      console.log("oid ",oid)
-
-      // Fetch organization by ID
+  
+      if (!oid || !mongoose.Types.ObjectId.isValid(oid)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+  
       const organization = await Organization.findById(new mongoose.Types.ObjectId(oid));
-
+  
       if (organization) {
-        console.log("organization ",organization)
         res.json(organization);
       } else {
         res.status(404).json({ message: "Organization not found" });
@@ -110,6 +111,7 @@ const organizationCtrl = {
       res.status(500).json({ message: "Internal server error" });
     }
   },
+  
 
   //! Update Organization
   updateOrganization: async (req, res) => {
