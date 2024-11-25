@@ -21,17 +21,30 @@ mongoose
 
 //! Middlewares
 app.use(express.json()); //pass incoming json data from the user
-app.options("*", cors({
-  origin: ORIGIN_URL,
-  credentials: true,
-}));
+
+const allowedOrigins = [
+  ORIGIN_URL,
+  "http://localhost:8081", // Local development
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use((req, res, next) => {
   console.log(`Origin: ${req.headers.origin}`);
   console.log(`Method: ${req.method}`);
   next();
 });
-
 
 // app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser());
