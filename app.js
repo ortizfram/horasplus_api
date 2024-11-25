@@ -22,6 +22,8 @@ mongoose
 //! Middlewares
 app.use(express.json()); //pass incoming json data from the user
 
+console.log(ORIGIN_URL)
+
 const allowedOrigins = [
   ORIGIN_URL,
   "http://localhost:8081", // Local development
