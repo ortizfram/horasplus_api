@@ -161,7 +161,7 @@ const login = async (req, res) => {
       user: {
         data: {
           ...userNoPass,
-          organization_id: existingOrganizationId || null, // Use the existing organization_id
+          organization_id: existingOrganizationId._id || null, // Use the existing organization_id
         },
         _id: user._id,
         email: user.email,
