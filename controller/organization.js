@@ -94,11 +94,13 @@ const organizationCtrl = {
   getOrganizationById: async (req, res) => {
     try {
       const { oid } = req.params;
+      console.log("oid ",oid)
 
       // Fetch organization by ID
       const organization = await Organization.findById(oid);
 
       if (organization) {
+        console.log("organization ",organization)
         res.json(organization);
       } else {
         res.status(404).json({ message: "Organization not found" });
