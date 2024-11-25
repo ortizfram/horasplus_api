@@ -131,7 +131,7 @@ const login = async (req, res) => {
     }
 
     // Safeguard: Ensure organization_id remains unchanged
-    const existingOrganizationId = user.organization_id;
+    const existingOrganizationId = user?.organization_id?._id;
 
     // Remove sensitive fields for response
     const userNoPass = { ...user.toObject() };
