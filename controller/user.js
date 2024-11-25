@@ -73,7 +73,7 @@ const createToken = (userId) => {
 
 // Register controller
 const register = async (req, res) => {
-  console.log("register controller")
+  console.log("register controller");
   try {
     const { email, password, firstname, lastname } = req.body;
 
@@ -130,6 +130,10 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Credenciales Invalidas" });
     }
 
+    // Safeguard: Ensure organization_id remains unchanged
+    const existingOrganizationId = user.organization_id;
+
+    // Remove sensitive fields for response
     const userNoPass = { ...user.toObject() };
     delete userNoPass.password;
 
@@ -157,7 +161,7 @@ const login = async (req, res) => {
       user: {
         data: {
           ...userNoPass,
-          organization_id: user.organization_id || null, // Include populated organization_id
+          organization_id: existingOrganizationId || null, // Use the existing organization_id
         },
         _id: user._id,
         email: user.email,
@@ -171,7 +175,6 @@ const login = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
-
 
 const getEmployee = async (req, res) => {
   try {
@@ -296,12 +299,10 @@ const requestPasswordReset = async (req, res) => {
       res.status(201).json({ message: "Correo de recuperación enviado" });
     } catch (mailError) {
       console.error("Error al enviar el correo de recuperación:", mailError);
-      res
-        .status(500)
-        .json({
-          message: "Error al enviar el correo de recuperación",
-          error: mailError,
-        });
+      res.status(500).json({
+        message: "Error al enviar el correo de recuperación",
+        error: mailError,
+      });
     }
   } catch (error) {
     console.error(
@@ -313,8 +314,8 @@ const requestPasswordReset = async (req, res) => {
 };
 
 const updatePassword = async (req, res) => {
-  const { newPassword,token } = req.body;
-  console.log(token)
+  const { newPassword, token } = req.body;
+  console.log(token);
 
   try {
     // Find user with matching reset token and check expiration
