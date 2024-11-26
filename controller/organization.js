@@ -164,6 +164,8 @@ const organizationCtrl = {
     try {
       const { oid } = req.params; // Organization ID from the URL
       const { uid } = req.body; // User ID from the request body
+      console.log("controller oid ",oid)
+      console.log("controller uid ",uid)
 
       // Find the organization by ID
       const organization = await Organization.findById(
