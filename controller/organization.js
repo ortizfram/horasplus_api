@@ -161,56 +161,35 @@ const organizationCtrl = {
 
   //? Be Part of an Organization
   bePart: async (req, res) => {
+    const { oid } = req.params;
+    const { uid } = req.body;
+    console.log("Received bePart request with oid:", oid, "uid:", uid);
+  
     try {
-      const { oid } = req.params; // Organization ID
-      const { uid } = req.body; // User ID
-  
-      if (!mongoose.Types.ObjectId.isValid(oid)) {
-        return res.status(400).json({ message: "Invalid organization ID" });
-      }
-      if (!mongoose.Types.ObjectId.isValid(uid)) {
-        return res.status(400).json({ message: "Invalid user ID" });
+      if (!mongoose.Types.ObjectId.isValid(oid) || !mongoose.Types.ObjectId.isValid(uid)) {
+        return res.status(400).json({ message: "Invalid organization or user ID" });
       }
   
-      const organization = await Organization.findById(new mongoose.Types.ObjectId(oid));
-      if (!organization) {
-        return res.status(404).json({ message: "Organization not found" });
+      const organization = await Organization.findById(oid);
+      if (!organization) return res.status(404).json({ message: "Organization not found" });
+  
+      const user = await User.findById(uid);
+      if (!user) return res.status(404).json({ message: "User not found" });
+  
+      // Check and update user association
+      if (user.organization_id?.toString() === oid) {
+        return res.status(400).json({ message: "User already belongs to this organization" });
       }
+      user.organization_id = oid;
+      await user.save();
   
-      const user = await User.findById(new mongoose.Types.ObjectId(uid));
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-  
-      // Handle user association logic as before
-      if (user.organization_id) {
-        if (user.organization_id.toString() === oid) {
-          return res
-            .status(400)
-            .json({ message: "User already belongs to this organization" });
-        } else {
-          user.organization_id = organization._id;
-          await user.save();
-  
-          return res.status(200).json({
-            message: "User successfully changed organization",
-            user,
-          });
-        }
-      } else {
-        user.organization_id = organization._id;
-        await user.save();
-  
-        return res.status(200).json({
-          message: "User successfully associated with the organization",
-          user,
-        });
-      }
+      return res.status(200).json({ message: "User successfully associated", user });
     } catch (error) {
-      console.error("Error during user association:", error);
-      return res.status(500).json({ message: "Internal server error" });
+      console.error("Error in bePart:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
+  
   
 
   //? Accept Employee
