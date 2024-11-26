@@ -162,46 +162,45 @@ const organizationCtrl = {
   //? Be Part of an Organization
   bePart: async (req, res) => {
     try {
-      const { oid } = req.params; // Organization ID from the URL
-      const { uid } = req.body; // User ID from the request body
-      console.log("controller oid ",oid)
-      console.log("controller uid ",uid)
-
-      // Find the organization by ID
-      const organization = await Organization.findById(
-        new mongoose.Types.ObjectId(oid)
-      );
+      const { oid } = req.params; // Organization ID
+      const { uid } = req.body; // User ID
+  
+      if (!mongoose.Types.ObjectId.isValid(oid)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+      if (!mongoose.Types.ObjectId.isValid(uid)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+  
+      const organization = await Organization.findById(new mongoose.Types.ObjectId(oid));
       if (!organization) {
         return res.status(404).json({ message: "Organization not found" });
       }
-
-      // Find the user by ID
+  
       const user = await User.findById(new mongoose.Types.ObjectId(uid));
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-
-      // Check if the user already belongs to an organization
+  
+      // Handle user association logic as before
       if (user.organization_id) {
         if (user.organization_id.toString() === oid) {
           return res
             .status(400)
             .json({ message: "User already belongs to this organization" });
         } else {
-          // If the user is changing organizations, update the organization_id
           user.organization_id = organization._id;
           await user.save();
-
+  
           return res.status(200).json({
             message: "User successfully changed organization",
             user,
           });
         }
       } else {
-        // If the user doesn't have an organization, associate them with the new one
         user.organization_id = organization._id;
         await user.save();
-
+  
         return res.status(200).json({
           message: "User successfully associated with the organization",
           user,
@@ -209,9 +208,10 @@ const organizationCtrl = {
       }
     } catch (error) {
       console.error("Error during user association:", error);
-      res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ message: "Internal server error" });
     }
   },
+  
 
   //? Accept Employee
   acceptEmployee: async (req, res) => {
