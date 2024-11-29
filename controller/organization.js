@@ -70,27 +70,27 @@ const organizationCtrl = {
     }
   },
 
-// Probar la consulta en el backend
-getOrganizations: async (req, res) => {
-  try {
-    const { userId, isAdmin, isSuperAdmin } = req.query;
-    console.log("userId backend ",userId)
-
-    let query = {};
-    if (isAdmin === 'true' && isSuperAdmin === 'false') {
-      query = { user_id: new mongoose.Types.ObjectId(userId) };
+  getOrganizations: async (req, res) => {
+    try {
+      const { userId, isAdmin, isSuperAdmin } = req.query;
+      console.log("Query parameters received:", { userId, isAdmin, isSuperAdmin }); // Debug log
+  
+      let query = {};
+      if (isAdmin === 'true' && isSuperAdmin === 'false') {
+        query = { user_id: new mongoose.Types.ObjectId(userId) };
+      }
+  
+      const organizations = await Organization.find(query);
+      if (organizations.length === 0) {
+        console.log("No organizations found for user_id:", userId);
+      }
+      res.json(organizations);
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    const organizations = await Organization.find(query);
-    if (organizations.length === 0) {
-      console.log("No organizations found for user_id:", userId);
-    }
-    res.json(organizations);
-  } catch (error) {
-    console.error("Error fetching organizations:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-},
+  },
+  
 
 
   //! Get Organization by ID
