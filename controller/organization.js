@@ -73,16 +73,15 @@ const organizationCtrl = {
   //! Get Organizations by User or get all
   getOrganizations: async (req, res) => {
     try {
-      const { userId } = req.query; // Extract userId from query parameters
+      const { userId, isAdmin, isSuperAdmin } = req.query;
 
-      // If userId is provided, fetch organizations for that user
-      const query = userId
-        ? { user_id: new mongoose.Types.ObjectId(userId) }
-        : {};
+      let query = {};
+      if (userId && isAdmin && !isSuperAdmin) {
+        // If the user is an admin, filter by their user ID
+        query = { user_id: new mongoose.Types.ObjectId(userId) };
+      }
 
-      // Fetch organizations based on the query
       const organizations = await Organization.find(query);
-
       res.json(organizations);
     } catch (error) {
       console.error("Error fetching organizations:", error);
@@ -94,13 +93,15 @@ const organizationCtrl = {
   getOrganizationById: async (req, res) => {
     try {
       const { oid } = req.params;
-  
+
       if (!oid || !mongoose.Types.ObjectId.isValid(oid)) {
         return res.status(400).json({ message: "Invalid organization ID" });
       }
-  
-      const organization = await Organization.findById(new mongoose.Types.ObjectId(oid));
-  
+
+      const organization = await Organization.findById(
+        new mongoose.Types.ObjectId(oid)
+      );
+
       if (organization) {
         res.json(organization);
       } else {
@@ -111,7 +112,6 @@ const organizationCtrl = {
       res.status(500).json({ message: "Internal server error" });
     }
   },
-  
 
   //! Update Organization
   updateOrganization: async (req, res) => {
@@ -164,33 +164,41 @@ const organizationCtrl = {
     const { oid } = req.params;
     const { uid } = req.body;
     console.log("Received bePart request with oid:", oid, "uid:", uid);
-  
+
     try {
-      if (!mongoose.Types.ObjectId.isValid(oid) || !mongoose.Types.ObjectId.isValid(uid)) {
-        return res.status(400).json({ message: "Invalid organization or user ID" });
+      if (
+        !mongoose.Types.ObjectId.isValid(oid) ||
+        !mongoose.Types.ObjectId.isValid(uid)
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Invalid organization or user ID" });
       }
-  
+
       const organization = await Organization.findById(oid);
-      if (!organization) return res.status(404).json({ message: "Organization not found" });
-  
+      if (!organization)
+        return res.status(404).json({ message: "Organization not found" });
+
       const user = await User.findById(uid);
       if (!user) return res.status(404).json({ message: "User not found" });
-  
+
       // Check and update user association
       if (user.organization_id?.toString() === oid) {
-        return res.status(400).json({ message: "User already belongs to this organization" });
+        return res
+          .status(400)
+          .json({ message: "User already belongs to this organization" });
       }
       user.organization_id = oid;
       await user.save();
-  
-      return res.status(200).json({ message: "User successfully associated", user });
+
+      return res
+        .status(200)
+        .json({ message: "User successfully associated", user });
     } catch (error) {
       console.error("Error in bePart:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   },
-  
-  
 
   //? Accept Employee
   acceptEmployee: async (req, res) => {
