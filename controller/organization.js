@@ -76,8 +76,8 @@ const organizationCtrl = {
       const { userId, isAdmin, isSuperAdmin } = req.query;
 
       let query = {};
-      if (userId && isAdmin && !isSuperAdmin) {
-        // If the user is an admin, filter by their user ID
+      if (isAdmin === 'true' && isSuperAdmin === 'false') {
+        // Parse string booleans to actual booleans
         query = { user_id: new mongoose.Types.ObjectId(userId) };
       }
 
