@@ -256,6 +256,27 @@ const shiftCtrl = {
     }
   },
 
+  getLastShift: async (req, res) => {
+    const { uid } = req.params;
+  
+    try {
+      // Find the most recent shift for the user
+      const shift = await Shift.findOne({ user_id: new mongoose.Types.ObjectId(uid) })
+        .sort({ date: -1 }) // Sort by date in descending order
+        .exec();
+  
+      if (!shift) {
+        return res.status(404).json({ message: "No shifts found for the user" });
+      }
+  
+      res.status(200).json(shift);
+    } catch (error) {
+      console.error("Error fetching last shift:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+  
+
   userReport: async (req, res) => {
     try {
       const { uid } = req.params;

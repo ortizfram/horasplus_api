@@ -9,5 +9,6 @@ router.get("/:uid", shiftCtrl.userReport);
 router.put("/:uid", shiftCtrl.updateShift);
 router.post("/:uid/add-fix", shiftCtrl.addShiftFromUpdateView);
 router.get("/:uid/fetch", shiftCtrl.getAShift);
+router.get("/:uid/fetch/last", shiftCtrl.getLastShift);
 
 module.exports = router;
