@@ -5,15 +5,28 @@ const { mongoose } = require("mongoose");
 
 // Function to calculate total hours
 function calculateTotalHours(inTime, outTime) {
+  // Combina una fecha base (p. ej., 1970-01-01) con las horas de entrada y salida
   const inDate = new Date(`1970-01-01T${inTime}`);
   const outDate = new Date(`1970-01-01T${outTime}`);
-  const diffMs = outDate - inDate;
-  if (diffMs >= 0) {
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
+
+  // Verifica si las fechas son válidas
+  if (isNaN(inDate) || isNaN(outDate)) {
+    return "0h 0m";
   }
-  return "0h 0m";
+
+  // Calcula la diferencia en milisegundos
+  const diffMs = outDate - inDate;
+
+  // Asegúrate de manejar diferencias negativas
+  if (diffMs < 0) {
+    return "0h 0m";
+  }
+
+  // Calcula horas y minutos
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  return `${hours}h ${minutes}m`;
 }
 
 const shiftCtrl = {
@@ -57,10 +70,10 @@ const shiftCtrl = {
       const formattedDate = currentDate.toISOString().split("T")[0]; // Store as YYYY-MM-DD
 
       // Calculate total hours if outTime is provided
-      let totalHours = null;
-      if (outTimeDate) {
-        totalHours = (outTimeDate - inTimeDate) / (1000 * 60 * 60);
-      }
+      const totalHours =
+        formattedOutTime && formattedInTime
+          ? calculateTotalHours(formattedInTime, formattedOutTime)
+          : "0h 0m";
 
       const newShift = new Shift({
         user_id: user._id,
@@ -112,15 +125,7 @@ const shiftCtrl = {
       if (isNaN(outDate.getTime()))
         return res.status(400).json({ message: "Invalid outTime format" });
 
-      // Calculate the total time worked
-      const diffMs = outDate - inDate;
-      if (diffMs >= 0) {
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        ongoingShift.total_hours = `${hours}h ${minutes}m`;
-      } else {
-        ongoingShift.total_hours = "0h 0m";
-      }
+      ongoingShift.total_hours = calculateTotalHours(ongoingShift.in, outTime);
 
       // Format the out time as hh:mm:ss
       const formattedOutTime = outDate.toLocaleTimeString("en-AR", {
