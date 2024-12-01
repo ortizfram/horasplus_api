@@ -111,22 +111,28 @@ const shiftCtrl = {
       const inTimeDate = new Date(
         `${currentShift.date.toISOString().split("T")[0]}T${currentShift.in}`
       );
+  
+      // Validate inTime (ensure it's a valid date)
+      if (isNaN(inTimeDate.getTime())) {
+        return res.status(400).json({ message: "Invalid inTime format" });
+      }
+  
+      // Ensure outTime is a valid time string
       const outTimeDate = new Date(
         `${currentShift.date.toISOString().split("T")[0]}T${outTime}`
       );
   
-      // Validate parsed dates
-      if (isNaN(inTimeDate.getTime()) || isNaN(outTimeDate.getTime())) {
-        return res
-          .status(400)
-          .json({ message: "Invalid inTime or outTime format" });
+      // Validate outTime (ensure it's a valid date)
+      if (isNaN(outTimeDate.getTime())) {
+        return res.status(400).json({ message: "Invalid outTime format" });
       }
   
-      // Format times
+      // Format both inTime and outTime
       const formattedInTime = inTimeDate.toLocaleTimeString("en-AR", {
         timeZone: "America/Argentina/Buenos_Aires",
         hour12: false,
       });
+  
       const formattedOutTime = outTimeDate.toLocaleTimeString("en-AR", {
         timeZone: "America/Argentina/Buenos_Aires",
         hour12: false,
@@ -135,7 +141,7 @@ const shiftCtrl = {
       // Calculate total hours
       const totalHours = calculateTotalHours(formattedInTime, formattedOutTime);
   
-      // Update shift
+      // Update shift with out time and total hours
       currentShift.out = formattedOutTime;
       currentShift.total_hours = totalHours;
       currentShift.markModified("out");
@@ -152,6 +158,7 @@ const shiftCtrl = {
       res.status(500).json({ message: "Internal server error" });
     }
   },
+  
   
 
   // Standalone function for addShiftFromUpdateView
