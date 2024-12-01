@@ -117,11 +117,9 @@ const shiftCtrl = {
         return res.status(400).json({ message: "Invalid inTime format" });
       }
 
-      // If outTime is provided, combine it with the current date
-      const outTimeDate = new Date(`1970-01-01T${outTime}`)
 
       // Validate outTime (ensure it's a valid date)
-      if (outTime && isNaN(outTimeDate.getTime())) {
+      if (outTime && isNaN(outTime.getTime())) {
         return res.status(400).json({ message: "Invalid outTime format" });
       }
 
