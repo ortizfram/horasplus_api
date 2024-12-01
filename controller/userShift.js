@@ -25,8 +25,6 @@ function calculateTotalHours(inTime, outTime) {
   return `${hours}h ${minutes}m`;
 }
 
-
-
 const shiftCtrl = {
   createShift: async (req, res) => {
     try {
@@ -94,9 +92,12 @@ const shiftCtrl = {
   },
 
   leaveShift: async (req, res) => {
+    console.log("\n\nleaveShift**************")
     try {
       const { uid, oid } = req.params;
       const { outTime } = req.body;
+
+      console.log("outTime body",outTime)
 
       // Fetch the ongoing shift for the user in the specified organization
       const ongoingShift = await Shift.findOne({
@@ -109,16 +110,20 @@ const shiftCtrl = {
         return res.status(404).json({ message: "Ongoing shift not found" });
 
       console.log(
-        "ongoingShift.date ",
+        "ongoingShift.date:",
         ongoingShift.date,
-        " ongoingShift.in ",
-        ongoingShift.in
+        " ongoingShift.in:",
+        ongoingShift.in,
+        " ongoingShift.out:",
+        ongoingShift.out
       );
 
       // Combine the date with the in time
       const date = ongoingShift.date.toISOString().split("T")[0];
-const inDate = new Date(`${date}T${ongoingShift.in}`);
-const outDate = new Date(`${date}T${outTime}`);
+      console.log("date:",date)
+      const inDate = new Date(`${date}T${ongoingShift.in}`);
+      const outDate = new Date(`${date}T${outTime}`);
+      console.log("outDate:",outDate," type:",typeof(outDate))
 
       if (isNaN(outDate.getTime()))
         return res.status(400).json({ message: "Invalid outTime format" });
@@ -245,7 +250,7 @@ const outDate = new Date(`${date}T${outTime}`);
 
   getLastShift: async (req, res) => {
     const { uid } = req.params;
-  
+
     try {
       // Find the most recent shift for the user
       const shift = await Shift.findOne({
@@ -253,20 +258,20 @@ const outDate = new Date(`${date}T${outTime}`);
       })
         .sort({ date: -1 }) // Sort by date in descending order
         .exec();
-  
+
       if (!shift) {
         return res
           .status(404)
           .json({ message: "No shifts found for the user" });
       }
-  
+
       // Parse and calculate total hours
       const date = shift.date.toISOString().split("T")[0];
       const inTime = shift.in ? new Date(`${date}T${shift.in}`) : null;
       const outTime = shift.out ? new Date(`${date}T${shift.out}`) : null;
-  
+
       let totalHours = "0h 0m";
-  
+
       if (inTime && outTime) {
         const diff = outTime - inTime;
         if (diff > 0) {
@@ -275,7 +280,7 @@ const outDate = new Date(`${date}T${outTime}`);
           totalHours = `${hours}h ${minutes}m`;
         }
       }
-  
+
       res.status(200).json({
         message: "Shift retrieved successfully",
         shift: { ...shift.toObject(), total_hours: totalHours },
@@ -285,8 +290,6 @@ const outDate = new Date(`${date}T${outTime}`);
       res.status(500).json({ message: "Internal server error" });
     }
   },
-  
-  
 
   userReport: async (req, res) => {
     try {
