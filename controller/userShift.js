@@ -92,57 +92,46 @@ const shiftCtrl = {
   },
 
   leaveShift: async (req, res) => {
-    console.log("\n\nleaveShift**************")
     try {
       const { uid, oid } = req.params;
       const { outTime } = req.body;
 
-      console.log("outTime body",outTime)
-
       // Fetch the ongoing shift for the user in the specified organization
-      const ongoingShift = await Shift.findOne({
+      const currentShift = await Shift.findOne({
         user_id: uid,
         organization_id: oid,
         out: null, // Find the shift where 'out' time is still null (i.e., the ongoing shift)
       });
 
-      if (!ongoingShift)
-        return res.status(404).json({ message: "Ongoing shift not found" });
-
-      console.log(
-        "ongoingShift.date:",
-        ongoingShift.date,
-        " ongoingShift.in:",
-        ongoingShift.in,
-        " ongoingShift.out:",
-        ongoingShift.out
-      );
+      if (!currentShift)
+        return res.status(404).json({ message: "Current shift not found" });
 
       // Combine the date with the in time
-      const date = ongoingShift.date.toISOString().split("T")[0];
-      console.log("date:",date)
-      const inDate = new Date(`${date}T${ongoingShift.in}`);
-      const outDate = new Date(`${date}T${outTime}`);
-      console.log("outDate:",outDate," type:",typeof(outDate))
+      const inTimeDate = new Date(currentShift.in);
+      const outTimeDate = new Date(outTime);
 
-      if (isNaN(outDate.getTime()))
-        return res.status(400).json({ message: "Invalid outTime format" });
-
-      ongoingShift.total_hours = calculateTotalHours(ongoingShift.in, outTime);
-
-      // Format the out time as hh:mm:ss
-      const formattedOutTime = outDate.toLocaleTimeString("en-AR", {
+      const formattedInTime = inTimeDate.toLocaleTimeString("en-AR", {
+        timeZone: "America/Argentina/Buenos_Aires",
+        hour12: false,
+      });
+      const formattedOutTime = outTimeDate.toLocaleTimeString("en-AR", {
         timeZone: "America/Argentina/Buenos_Aires",
         hour12: false,
       });
 
-      // Update the shift
-      ongoingShift.out = formattedOutTime;
-      await ongoingShift.save();
+      const totalHours =
+        formattedOutTime && formattedInTime
+          ? calculateTotalHours(formattedInTime, formattedOutTime)
+          : "0h 0m";
+
+      currentShift.out = formattedOutTime;
+      currentShift.total_hours = totalHours;
+
+      await currentShift.save();
 
       res.status(200).json({
         message: "Shift updated successfully",
-        shift: ongoingShift,
+        shift: currentShift,
       });
     } catch (error) {
       console.error(error);
