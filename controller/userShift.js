@@ -123,7 +123,7 @@ const shiftCtrl = {
         return res.status(400).json({ message: "Invalid outTime format" });
       }
 
-      if (outTime) shift.out = outTime;
+      if (outTime) shift.out = new Date(outTime).getTime();
 
       await shift.save();
 
