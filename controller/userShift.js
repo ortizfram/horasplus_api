@@ -110,7 +110,7 @@ const shiftCtrl = {
       console.log();
 
       // Combine the date with the in time
-      const inTimeDate = new Date(`1970-01-01T${shift.in}`).toISOString();
+      const inTimeDate = new Date(`1970-01-01T${shift.in}`)
 
       // Validate inTime (ensure it's a valid date)
       if (isNaN(inTimeDate.getTime())) {
@@ -118,7 +118,7 @@ const shiftCtrl = {
       }
 
       // If outTime is provided, combine it with the current date
-      const outTimeDate = new Date(`1970-01-01T${outTime}`).toISOString();
+      const outTimeDate = new Date(`1970-01-01T${outTime}`)
 
       // Validate outTime (ensure it's a valid date)
       if (outTime && isNaN(outTimeDate.getTime())) {
@@ -131,7 +131,7 @@ const shiftCtrl = {
 
       if (shift.in && shift.out) {
         const inDate = new Date(`1970-01-01T${shift.in}`);
-        const outDate = new Date(`1970-01-01T${outTimeDate.getTime()}`);
+        const outDate = new Date(`1970-01-01T${outTime}`);
 
         const diffMs = outDate - inDate;
         if (diffMs >= 0) {
