@@ -5,8 +5,8 @@ const { mongoose } = require("mongoose");
 
 // Function to calculate total hours
 function calculateTotalHours(inTime, outTime) {
-  const inDate = new Date(`1970-01-01T${inTime}`);//inTimeDate
-  const outDate = new Date(`1970-01-01T${outTime}`);
+  const inDate = new Date(`1970-01-01T${inTime}:00-03:00`); // Ensure the time zone is included
+  const outDate = new Date(`1970-01-01T${outTime}:00-03:00`); // Same here for outTime
 
   if (isNaN(inDate.getTime()) || isNaN(outDate.getTime())) {
     console.error("Invalid date formats:", { inTime, outTime });
