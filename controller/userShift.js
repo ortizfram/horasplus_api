@@ -5,29 +5,31 @@ const { mongoose } = require("mongoose");
 
 // Function to calculate total hours
 function calculateTotalHours(inTime, outTime) {
-  // Combina una fecha base (p. ej., 1970-01-01) con las horas de entrada y salida
-  const inDate = new Date(`1970-01-01T${inTime}`);
-  const outDate = new Date(`1970-01-01T${outTime}`);
+  try {
+    const inDate = new Date(inTime);
+    const outDate = new Date(outTime);
 
-  // Verifica si las fechas son válidas
-  if (isNaN(inDate) || isNaN(outDate)) {
+    if (isNaN(inDate.getTime()) || isNaN(outDate.getTime())) {
+      console.error("Invalid date formats:", { inTime, outTime });
+      return "0h 0m";
+    }
+
+    const diffMs = outDate - inDate;
+    if (diffMs < 0) {
+      console.warn("Negative time difference:", { inDate, outDate });
+      return "0h 0m";
+    }
+
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    return `${hours}h ${minutes}m`;
+  } catch (error) {
+    console.error("Error in calculateTotalHours:", error);
     return "0h 0m";
   }
-
-  // Calcula la diferencia en milisegundos
-  const diffMs = outDate - inDate;
-
-  // Asegúrate de manejar diferencias negativas
-  if (diffMs < 0) {
-    return "0h 0m";
-  }
-
-  // Calcula horas y minutos
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-  return `${hours}h ${minutes}m`;
 }
+
 
 const shiftCtrl = {
   createShift: async (req, res) => {
@@ -119,7 +121,7 @@ const shiftCtrl = {
 
       // Combine the date with the in time
       const justDate = ongoingShift.date.toISOString().split("T")[0];
-      const inDate = new Date(`${justDate}T${ongoingShift.in}`);
+      const inDate = new Date(inTime);
       const outDate = new Date(outTime);
 
       if (isNaN(outDate.getTime()))
@@ -247,7 +249,7 @@ const shiftCtrl = {
 
   getLastShift: async (req, res) => {
     const { uid } = req.params;
-  
+
     try {
       // Find the most recent shift for the user
       const shift = await Shift.findOne({
@@ -255,26 +257,26 @@ const shiftCtrl = {
       })
         .sort({ date: -1 }) // Sort by date in descending order
         .exec();
-  
+
       if (!shift) {
         return res
           .status(404)
           .json({ message: "No shifts found for the user" });
       }
-  
+
       // Calculate total_hours
       const inTime = shift.in ? new Date(shift.in) : null;
       const outTime = shift.out ? new Date(shift.out) : null;
-  
+
       let totalHours = 0;
       let totalMinutes = 0;
-  
+
       if (inTime && outTime) {
         const diff = (outTime - inTime) / 1000 / 60; // Difference in minutes
         totalHours = Math.floor(diff / 60);
         totalMinutes = diff % 60;
       }
-  
+
       res.status(200).json({
         ...shift.toObject(),
         total_hours: `${totalHours}h ${totalMinutes}m`,
@@ -284,7 +286,6 @@ const shiftCtrl = {
       res.status(500).json({ message: "Internal server error" });
     }
   },
-  
 
   userReport: async (req, res) => {
     try {
