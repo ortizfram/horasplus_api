@@ -119,7 +119,7 @@ const shiftCtrl = {
 
 
       // Validate outTime (ensure it's a valid date)
-      if (outTime && isNaN(outTime.getTime())) {
+      if (outTime && isNaN(new Date(outTime).getTime())) {
         return res.status(400).json({ message: "Invalid outTime format" });
       }
 
@@ -129,7 +129,7 @@ const shiftCtrl = {
 
       if (shift.in && shift.out) {
         const inDate = new Date(`1970-01-01T${shift.in}`);
-        const outDate = new Date(`1970-01-01T${outTime}`);
+        const outDate = new Date(`1970-01-01T${new Date(outTime).getTime()}`);
 
         const diffMs = outDate - inDate;
         if (diffMs >= 0) {
