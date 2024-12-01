@@ -104,48 +104,32 @@ const shiftCtrl = {
         ongoingShift.in
       );
 
-      // Combine the date with the in time (without adding 'Z' which converts to UTC)
+      // Combine the date with the in time
       const justDate = ongoingShift.date.toISOString().split("T")[0];
-      const inTimeString = `${justDate}T${ongoingShift.in}`; // Combine date and time
+      const inDate = new Date(`${justDate}T${ongoingShift.in}`);
+      const outDate = new Date(outTime);
 
-      // Create new Date objects for both in and out times, considering the local time zone
-      const inTimeDate = new Date(inTimeString);
-      const outTimeDate = new Date(outTime);
+      if (isNaN(outDate.getTime()))
+        return res.status(400).json({ message: "Invalid outTime format" });
 
-      if (isNaN(outTimeDate.getTime()))
-        return res.status(400).json({ message: "Invalid outTime date format" });
+      // Calculate the total time worked
+      const diffMs = outDate - inDate;
+      if (diffMs >= 0) {
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        ongoingShift.total_hours = `${hours}h ${minutes}m`;
+      } else {
+        ongoingShift.total_hours = "0h 0m";
+      }
 
-      // Calculate total hours worked in this shift (in milliseconds)
-      const totalHoursInMs = outTimeDate - inTimeDate;
-
-      // Convert the milliseconds to hours and minutes
-      const hours = Math.floor(totalHoursInMs / (1000 * 60 * 60)); // Full hours
-      const minutes = Math.floor(
-        (totalHoursInMs % (1000 * 60 * 60)) / (1000 * 60)
-      ); // Remaining minutes
-
-      console.log("inTimeDate ", inTimeDate, " outTimeDate ", outTimeDate);
-      console.log(
-        "Calculated total hours: ",
-        hours,
-        " hours, ",
-        minutes,
-        " minutes"
-      );
-
-      // Format total hours as hh:mm
-      const formattedTotalHours = `${hours}h ${minutes}m`;
-
-      // Format the out time as hh:mm:ss in the local time zone
-      const formattedOutTime = outTimeDate.toLocaleTimeString("en-AR", {
+      // Format the out time as hh:mm:ss
+      const formattedOutTime = outDate.toLocaleTimeString("en-AR", {
         timeZone: "America/Argentina/Buenos_Aires",
         hour12: false,
       });
 
-      // Update the shift with the out time and total hours
+      // Update the shift
       ongoingShift.out = formattedOutTime;
-      ongoingShift.total_hours = formattedTotalHours;
-
       await ongoingShift.save();
 
       res.status(200).json({
@@ -258,24 +242,27 @@ const shiftCtrl = {
 
   getLastShift: async (req, res) => {
     const { uid } = req.params;
-  
+
     try {
       // Find the most recent shift for the user
-      const shift = await Shift.findOne({ user_id: new mongoose.Types.ObjectId(uid) })
+      const shift = await Shift.findOne({
+        user_id: new mongoose.Types.ObjectId(uid),
+      })
         .sort({ date: -1 }) // Sort by date in descending order
         .exec();
-  
+
       if (!shift) {
-        return res.status(404).json({ message: "No shifts found for the user" });
+        return res
+          .status(404)
+          .json({ message: "No shifts found for the user" });
       }
-  
+
       res.status(200).json(shift);
     } catch (error) {
       console.error("Error fetching last shift:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   },
-  
 
   userReport: async (req, res) => {
     try {
