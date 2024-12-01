@@ -96,22 +96,21 @@ const shiftCtrl = {
       const { uid, oid } = req.params;
       const { outTime } = req.body;
 
-      
       // Fetch the ongoing shift for the user in the specified organization
       const shift = await Shift.findOne({
         user_id: uid,
         organization_id: oid,
         out: null, // Find the shift where 'out' time is still null (i.e., the ongoing shift)
       });
-      
+
       if (!shift) {
         return res.status(404).json({ message: "Current shift not found" });
       }
-      console.log("outTime:",outTime)
-      console.log()
+      console.log("outTime:", outTime);
+      console.log();
 
       // Combine the date with the in time
-      const inTimeDate = new Date(shift.in).toISOString();
+      const inTimeDate = new Date(`1970-01-01T${shift.in}`).toISOString();
 
       // Validate inTime (ensure it's a valid date)
       if (isNaN(inTimeDate.getTime())) {
@@ -119,7 +118,7 @@ const shiftCtrl = {
       }
 
       // If outTime is provided, combine it with the current date
-      const outTimeDate = new Date(outTime.toISOString());
+      const outTimeDate = new Date(`1970-01-01T${outTime}`).toISOString();
 
       // Validate outTime (ensure it's a valid date)
       if (outTime && isNaN(outTimeDate.getTime())) {
@@ -131,9 +130,8 @@ const shiftCtrl = {
       await shift.save();
 
       if (shift.in && shift.out) {
-        const date = shift.date.toISOString().split("T")[0];
-        const inDate = new Date(`${date}T${shift.in}`);
-        const outDate = new Date(`${date}T${outTime}`);
+        const inDate = new Date(`1970-01-01T${shift.in}`);
+        const outDate = new Date(`1970-01-01T${outTimeDate.getTime()}`);
 
         const diffMs = outDate - inDate;
         if (diffMs >= 0) {
