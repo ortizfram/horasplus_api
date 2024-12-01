@@ -120,9 +120,9 @@ const shiftCtrl = {
       );
 
       // Combine the date with the in time
-      const justDate = ongoingShift.date.toISOString().split("T")[0];
-      const inDate = new Date(inTime);
-      const outDate = new Date(outTime);
+      const date = ongoingShift.date.toISOString().split("T")[0];
+const inDate = new Date(`${date}T${ongoingShift.in}`);
+const outDate = new Date(`${date}T${outTime}`);
 
       if (isNaN(outDate.getTime()))
         return res.status(400).json({ message: "Invalid outTime format" });
@@ -198,9 +198,9 @@ const shiftCtrl = {
       await shift.save();
 
       if (shift.in && shift.out) {
-        const justDate = shift.date.toISOString().split("T")[0];
-        const inDate = new Date(`${justDate}T${shift.in}`);
-        const outDate = new Date(`${justDate}T${shift.out}`);
+        const date = shift.date.toISOString().split("T")[0];
+        const inDate = new Date(`${date}T${shift.in}`);
+        const outDate = new Date(`${date}T${outTime}`);
 
         const diffMs = outDate - inDate;
         if (diffMs >= 0) {
@@ -249,7 +249,7 @@ const shiftCtrl = {
 
   getLastShift: async (req, res) => {
     const { uid } = req.params;
-
+  
     try {
       // Find the most recent shift for the user
       const shift = await Shift.findOne({
@@ -257,26 +257,26 @@ const shiftCtrl = {
       })
         .sort({ date: -1 }) // Sort by date in descending order
         .exec();
-
+  
       if (!shift) {
         return res
           .status(404)
           .json({ message: "No shifts found for the user" });
       }
-
+  
       // Calculate total_hours
       const inTime = shift.in ? new Date(shift.in) : null;
       const outTime = shift.out ? new Date(shift.out) : null;
-
+  
       let totalHours = 0;
       let totalMinutes = 0;
-
+  
       if (inTime && outTime) {
         const diff = (outTime - inTime) / 1000 / 60; // Difference in minutes
         totalHours = Math.floor(diff / 60);
         totalMinutes = diff % 60;
       }
-
+  
       res.status(200).json({
         ...shift.toObject(),
         total_hours: `${totalHours}h ${totalMinutes}m`,
@@ -286,6 +286,7 @@ const shiftCtrl = {
       res.status(500).json({ message: "Internal server error" });
     }
   },
+  
 
   userReport: async (req, res) => {
     try {
