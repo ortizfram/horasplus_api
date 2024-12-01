@@ -110,20 +110,27 @@ const shiftCtrl = {
       console.log();
 
       // Combine the date with the in time
-      const inTimeDate = new Date(`1970-01-01T${shift.in}`)
+      const inTimeDate = new Date(`1970-01-01T${shift.in}`);
 
       // Validate inTime (ensure it's a valid date)
       if (isNaN(inTimeDate.getTime())) {
         return res.status(400).json({ message: "Invalid inTime format" });
       }
 
-
       // Validate outTime (ensure it's a valid date)
       if (outTime && isNaN(new Date(outTime).getTime())) {
         return res.status(400).json({ message: "Invalid outTime format" });
       }
 
-      if (outTime) shift.out = new Date(outTime).getTime();
+      const outTimeDate = new Date(outTime);
+
+      const formattedOutTime = outTimeDate
+        ? outTimeDate.toLocaleTimeString("en-AR", {
+            timeZone: "America/Argentina/Buenos_Aires",
+            hour12: false,
+          })
+        : null;
+      if (outTime) shift.out = formattedOutTime;
 
       await shift.save();
 
