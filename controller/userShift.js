@@ -5,30 +5,26 @@ const { mongoose } = require("mongoose");
 
 // Function to calculate total hours
 function calculateTotalHours(inTime, outTime) {
-  try {
-    const inDate = new Date(inTime);
-    const outDate = new Date(outTime);
+  const inDate = new Date(inTime);
+  const outDate = new Date(outTime);
 
-    if (isNaN(inDate.getTime()) || isNaN(outDate.getTime())) {
-      console.error("Invalid date formats:", { inTime, outTime });
-      return "0h 0m";
-    }
-
-    const diffMs = outDate - inDate;
-    if (diffMs < 0) {
-      console.warn("Negative time difference:", { inDate, outDate });
-      return "0h 0m";
-    }
-
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-    return `${hours}h ${minutes}m`;
-  } catch (error) {
-    console.error("Error in calculateTotalHours:", error);
+  if (isNaN(inDate.getTime()) || isNaN(outDate.getTime())) {
+    console.error("Invalid date formats:", { inTime, outTime });
     return "0h 0m";
   }
+
+  const diffMs = outDate - inDate;
+  if (diffMs < 0) {
+    console.warn("Negative time difference:", { inDate, outDate });
+    return "0h 0m";
+  }
+
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  return `${hours}h ${minutes}m`;
 }
+
 
 
 const shiftCtrl = {
@@ -264,28 +260,32 @@ const outDate = new Date(`${date}T${outTime}`);
           .json({ message: "No shifts found for the user" });
       }
   
-      // Calculate total_hours
-      const inTime = shift.in ? new Date(shift.in) : null;
-      const outTime = shift.out ? new Date(shift.out) : null;
+      // Parse and calculate total hours
+      const date = shift.date.toISOString().split("T")[0];
+      const inTime = shift.in ? new Date(`${date}T${shift.in}`) : null;
+      const outTime = shift.out ? new Date(`${date}T${shift.out}`) : null;
   
-      let totalHours = 0;
-      let totalMinutes = 0;
+      let totalHours = "0h 0m";
   
       if (inTime && outTime) {
-        const diff = (outTime - inTime) / 1000 / 60; // Difference in minutes
-        totalHours = Math.floor(diff / 60);
-        totalMinutes = diff % 60;
+        const diff = outTime - inTime;
+        if (diff > 0) {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          totalHours = `${hours}h ${minutes}m`;
+        }
       }
   
       res.status(200).json({
-        ...shift.toObject(),
-        total_hours: `${totalHours}h ${totalMinutes}m`,
+        message: "Shift retrieved successfully",
+        shift: { ...shift.toObject(), total_hours: totalHours },
       });
     } catch (error) {
       console.error("Error fetching last shift:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   },
+  
   
 
   userReport: async (req, res) => {
