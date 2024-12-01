@@ -107,8 +107,12 @@ const shiftCtrl = {
         return res.status(404).json({ message: "Current shift not found" });
 
       // Combine the date with the in time
-      const inTimeDate = new Date(currentShift.in);
-      const outTimeDate = new Date(outTime);
+      const inTimeDate = new Date(
+        `${currentShift.date.toISOString().split("T")[0]}T${currentShift.in}`
+      );
+      const outTimeDate = new Date(
+        `${currentShift.date.toISOString().split("T")[0]}T${outTime}`
+      );
 
       const formattedInTime = inTimeDate.toLocaleTimeString("en-AR", {
         timeZone: "America/Argentina/Buenos_Aires",
@@ -126,7 +130,8 @@ const shiftCtrl = {
 
       currentShift.out = formattedOutTime;
       currentShift.total_hours = totalHours;
-
+      currentShift.markModified("out");
+      currentShift.markModified("total_hours");
       await currentShift.save();
 
       res.status(200).json({
