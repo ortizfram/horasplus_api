@@ -130,23 +130,21 @@ const shiftCtrl = {
             hour12: false,
           })
         : null;
+      const formattedIntTime = inTimeDate
+        ? inTimeDate.toLocaleTimeString("en-AR", {
+            timeZone: "America/Argentina/Buenos_Aires",
+            hour12: false,
+          })
+        : null;
       if (outTime) shift.out = formattedOutTime;
 
       await shift.save();
 
-      if (shift.in && shift.out) {
-        const inDate = new Date(`1970-01-01T${shift.in}`);
-        const outDate = new Date(`1970-01-01T${new Date(outTime).getTime()}`);
-
-        const diffMs = outDate - inDate;
-        if (diffMs >= 0) {
-          const hours = Math.floor(diffMs / (1000 * 60 * 60));
-          const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-          shift.total_hours = `${hours}h ${minutes}m`;
-        } else {
-          shift.total_hours = "0h 0m";
-        }
-      }
+      const totalHours =
+        formattedOutTime && formattedIntTime
+          ? calculateTotalHours(formattedIntTime, formattedOutTime)
+          : "0h 0m";
+      if (totalHours) shift.total_hours = totalHours;
 
       await shift.save();
 
