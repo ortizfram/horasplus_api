@@ -96,19 +96,22 @@ const shiftCtrl = {
       const { uid, oid } = req.params;
       const { outTime } = req.body;
 
+      
       // Fetch the ongoing shift for the user in the specified organization
       const shift = await Shift.findOne({
         user_id: uid,
         organization_id: oid,
         out: null, // Find the shift where 'out' time is still null (i.e., the ongoing shift)
       });
-
+      
       if (!shift) {
         return res.status(404).json({ message: "Current shift not found" });
       }
+      console.log("outTime:",outTime)
+      console.log()
 
       // Combine the date with the in time
-      const inTimeDate = new Date(shift.in);
+      const inTimeDate = new Date(shift.in).toISOString();
 
       // Validate inTime (ensure it's a valid date)
       if (isNaN(inTimeDate.getTime())) {
@@ -116,23 +119,12 @@ const shiftCtrl = {
       }
 
       // If outTime is provided, combine it with the current date
-      const outTimeDate = new Date(outTime);
+      const outTimeDate = new Date(outTime.toISOString());
 
       // Validate outTime (ensure it's a valid date)
       if (outTime && isNaN(outTimeDate.getTime())) {
         return res.status(400).json({ message: "Invalid outTime format" });
       }
-
-      const formattedInTime = inTimeDate.toLocaleTimeString("en-AR", {
-        timeZone: "America/Argentina/Buenos_Aires",
-        hour12: false,
-      });
-      const formattedOutTime = outTimeDate
-        ? outTimeDate.toLocaleTimeString("en-AR", {
-            timeZone: "America/Argentina/Buenos_Aires",
-            hour12: false,
-          })
-        : null;
 
       if (outTime) shift.out = outTime;
 
