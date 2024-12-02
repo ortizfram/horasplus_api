@@ -40,7 +40,6 @@ console.log(calculateTotalHours("08:56:46", "11:06:04")); // Outputs: "2h 9m"
 console.log(calculateTotalHours("22:00:00", "06:00:00")); // Outputs: "8h 0m"
 console.log(calculateTotalHours("12:00:00", "11:59:59")); // Outputs: "23h 59m"
 
-
 const shiftCtrl = {
   createShift: async (req, res) => {
     try {
