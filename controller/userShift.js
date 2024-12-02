@@ -28,6 +28,14 @@ function calculateTotalHours(inTime, outTime) {
   // Calculate the time difference in milliseconds
   const diffMs = outDate - inDate;
 
+  if (diffMs < 0) {
+    console.error("Time difference is negative. Check input times.", {
+      inTime,
+      outTime,
+    });
+    return "0h 0m";
+  }
+
   // Convert the difference to hours and minutes
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
   const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -36,9 +44,10 @@ function calculateTotalHours(inTime, outTime) {
 }
 
 // Example usage
-console.log(calculateTotalHours("08:56:46", "11:06:04")); // Outputs: "2h 9m"
+console.log(calculateTotalHours("11:42:22", "11:50:19")); // Outputs: "0h 8m"
 console.log(calculateTotalHours("22:00:00", "06:00:00")); // Outputs: "8h 0m"
 console.log(calculateTotalHours("12:00:00", "11:59:59")); // Outputs: "23h 59m"
+
 
 const shiftCtrl = {
   createShift: async (req, res) => {
