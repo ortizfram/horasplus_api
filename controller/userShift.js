@@ -4,47 +4,36 @@ const Shift = require("../model/UserShift");
 const { mongoose } = require("mongoose");
 
 function calculateTotalHours(inTime, outTime) {
-  // Create a fixed date to parse time with the correct timezone offset (Buenos Aires)
-  const inDate = new Date(`1970-01-01T${inTime}:00-03:00`);  // Add Buenos Aires offset (-03:00)
-  const outDate = new Date(`1970-01-01T${outTime}:00-03:00`);  // Same for outTime
-
-  if (isNaN(inDate.getTime()) || isNaN(outDate.getTime())) {
-    console.error("Invalid date formats:", { inTime, outTime });
+  // Ensure the input times are in the "hh:mm:ss" format
+  if (
+    !/^\d{2}:\d{2}:\d{2}$/.test(inTime) ||
+    !/^\d{2}:\d{2}:\d{2}$/.test(outTime)
+  ) {
+    console.error("Invalid time format. Expected hh:mm:ss", {
+      inTime,
+      outTime,
+    });
     return "0h 0m";
   }
 
-  // Get the local time in Buenos Aires timezone
-  const formattedInTime = inDate.toLocaleTimeString("en-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    hour12: false,
-  });
+  // Parse the times assuming they're in the same day
+  const inDate = new Date(`1970-01-01T${inTime}-03:00`); // Buenos Aires timezone offset
+  const outDate = new Date(`1970-01-01T${outTime}-03:00`);
 
-  const formattedOutTime = outDate.toLocaleTimeString("en-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    hour12: false,
-  });
-
-  // Calculate the difference in milliseconds between in and out time
-  const diffMs = new Date(`1970-01-01T${formattedOutTime}:00-03:00`) - new Date(`1970-01-01T${formattedInTime}:00-03:00`);
-
-  if (diffMs < 0) {
-    console.warn("Negative time difference:", { formattedInTime, formattedOutTime });
-    return "0h 0m";
+  // If outTime is earlier than inTime, assume the work period crosses midnight
+  if (outDate < inDate) {
+    outDate.setDate(outDate.getDate() + 1); // Add one day to outDate
   }
 
-  // Calculate hours and minutes from the difference in milliseconds
+  // Calculate the time difference in milliseconds
+  const diffMs = outDate - inDate;
+
+  // Convert the difference to hours and minutes
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
   const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
   return `${hours}h ${minutes}m`;
 }
-
-// Example usage for the last record
-const inTime = "19:57:46"; // Input time
-const outTime = "20:00:27"; // Output time
-
-console.log(calculateTotalHours(inTime, outTime));  // Expected output: "0h 2m"
-
 
 const shiftCtrl = {
   createShift: async (req, res) => {
