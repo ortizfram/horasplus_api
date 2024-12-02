@@ -16,9 +16,9 @@ function calculateTotalHours(inTime, outTime) {
     return "0h 0m";
   }
 
-  // Parse the times assuming they're in the same day
-  const inDate = new Date(`1970-01-01T${inTime}-03:00`); // Buenos Aires timezone offset
-  const outDate = new Date(`1970-01-01T${outTime}-03:00`);
+  // Parse the times as UTC to avoid timezone issues
+  const inDate = new Date(`1970-01-01T${inTime}Z`);
+  const outDate = new Date(`1970-01-01T${outTime}Z`);
 
   // If outTime is earlier than inTime, assume the work period crosses midnight
   if (outDate < inDate) {
@@ -34,6 +34,12 @@ function calculateTotalHours(inTime, outTime) {
 
   return `${hours}h ${minutes}m`;
 }
+
+// Example usage
+console.log(calculateTotalHours("08:56:46", "11:06:04")); // Outputs: "2h 9m"
+console.log(calculateTotalHours("22:00:00", "06:00:00")); // Outputs: "8h 0m"
+console.log(calculateTotalHours("12:00:00", "11:59:59")); // Outputs: "23h 59m"
+
 
 const shiftCtrl = {
   createShift: async (req, res) => {
