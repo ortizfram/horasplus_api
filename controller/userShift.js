@@ -16,9 +16,8 @@ function calculateTotalHours(inTime, outTime) {
     return "0h 0m";
   }
 
-  // Parse the times as UTC to avoid timezone issues
-
-  const inDate = new Date(`1970-01-01T${inTime}-03:00`); // Explicitly set Buenos Aires timezone
+  // Parse the times with Buenos Aires timezone
+  const inDate = new Date(`1970-01-01T${inTime}-03:00`);
   const outDate = new Date(`1970-01-01T${outTime}-03:00`);
 
   // If outTime is earlier than inTime, assume the work period crosses midnight
@@ -38,11 +37,13 @@ function calculateTotalHours(inTime, outTime) {
   }
 
   // Convert the difference to hours and minutes
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const totalMinutes = Math.round(diffMs / (1000 * 60)); // Total difference in minutes
+  const hours = Math.floor(totalMinutes / 60); // Full hours
+  const minutes = totalMinutes % 60; // Remaining minutes
 
   return `${hours}h ${minutes}m`;
 }
+
 
 // Example usage
 console.log(calculateTotalHours("11:42:22", "11:50:19")); // Outputs: "0h 8m"
