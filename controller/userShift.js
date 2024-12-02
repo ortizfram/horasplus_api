@@ -38,12 +38,18 @@ function calculateTotalHours(inTime, outTime) {
 
   // Convert the difference to hours and minutes
   const totalMinutes = Math.round(diffMs / (1000 * 60)); // Total difference in minutes
-  const hours = Math.floor(totalMinutes / 60); // Full hours
+  let hours = Math.floor(totalMinutes / 60); // Full hours
   const minutes = totalMinutes % 60; // Remaining minutes
+
+  // Adjust the hours by subtracting 3 and setting to 0 if it results in 3
+  if (hours === 3) {
+    hours = 0;
+  } else {
+    hours -= 3;
+  }
 
   return `${hours}h ${minutes}m`;
 }
-
 
 // Example usage
 console.log(calculateTotalHours("11:42:22", "11:50:19")); // Outputs: "0h 8m"
