@@ -61,7 +61,7 @@ const shiftCtrl = {
     try {
       const { uid, oid } = req.params;
       console.log("uid ", uid);
-      const { inTime, outTime, shiftMode } = req.body;
+      const { inTime, outTime, shiftMode,location } = req.body;
 
       const user = await User.findById(uid);
       if (!user) return res.status(404).json({ message: "User not found" });
@@ -110,6 +110,7 @@ const shiftCtrl = {
         out: formattedOutTime,
         shift_mode: shiftMode,
         total_hours: totalHours,
+        location: location || null,
       });
 
       await newShift.save();

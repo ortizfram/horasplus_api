@@ -30,7 +30,17 @@ const shiftSchema = new mongoose.Schema({
   },
   total_hours: {
     type: String,
-    required: false, // Make total_hours optional
+    required: false,
+  },
+  location: { 
+    latitude: {
+      type: Number,
+      required: false,
+    },
+    longitude: {
+      type: Number,
+      required: false,
+    },
   },
 });
 
