@@ -61,7 +61,7 @@ const shiftCtrl = {
     try {
       const { uid, oid } = req.params;
       console.log("uid ", uid);
-      const { inTime, outTime, shiftMode,location } = req.body;
+      const { inTime, outTime, shiftMode, location } = req.body;
 
       const user = await User.findById(uid);
       if (!user) return res.status(404).json({ message: "User not found" });
@@ -118,6 +118,9 @@ const shiftCtrl = {
         .status(201)
         .json({ message: "Shift created successfully", shift: newShift });
     } catch (error) {
+      if (error.name === "ValidationError") {
+        return res.status(400).json({ message: error.message });
+      }
       console.error(error);
       res.status(500).json({ message: "Internal server error" });
     }

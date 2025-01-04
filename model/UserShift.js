@@ -27,6 +27,7 @@ const shiftSchema = new mongoose.Schema({
     type: String,
     enum: ["regular", "holiday", "vacation", "sick"], 
     required: true,
+    default: "regular",
   },
   total_hours: {
     type: String,
