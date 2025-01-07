@@ -129,7 +129,7 @@ const shiftCtrl = {
   leaveShift: async (req, res) => {
     try {
       const { uid, oid } = req.params;
-      const { outTime } = req.body;
+      const { outTime, location } = req.body;
 
       // Fetch the ongoing shift for the user in the specified organization
       const shift = await Shift.findOne({
@@ -141,16 +141,9 @@ const shiftCtrl = {
       if (!shift) {
         return res.status(404).json({ message: "Current shift not found" });
       }
+
       console.log("outTime:", outTime);
-      console.log();
-
-      // Combine the date with the in time
-      const inTimeDate = new Date(`1970-01-01T${shift.in}`);
-
-      // Validate inTime (ensure it's a valid date)
-      if (isNaN(inTimeDate.getTime())) {
-        return res.status(400).json({ message: "Invalid inTime format" });
-      }
+      console.log("Location:", location);
 
       // Validate outTime (ensure it's a valid date)
       if (outTime && isNaN(new Date(outTime).getTime())) {
@@ -165,20 +158,32 @@ const shiftCtrl = {
             hour12: false,
           })
         : null;
-      const formattedIntTime = inTimeDate
+
+      // Format the existing in time
+      const inTimeDate = new Date(`1970-01-01T${shift.in}`);
+      const formattedInTime = inTimeDate
         ? inTimeDate.toLocaleTimeString("en-AR", {
             timeZone: "America/Argentina/Buenos_Aires",
             hour12: false,
           })
         : null;
+
+      // Update shift details
       if (outTime) shift.out = formattedOutTime;
+      if (location && location.latitude_out && location.longitude_out) {
+        shift.location = {
+          ...shift.location,
+          latitude_out: location.latitude_out,
+          longitude_out: location.longitude_out,
+        };
+      }
 
-      await shift.save();
-
+      // Calculate total hours
       const totalHours =
-        formattedOutTime && formattedIntTime
-          ? calculateTotalHours(formattedIntTime, formattedOutTime)
+        formattedOutTime && formattedInTime
+          ? calculateTotalHours(formattedInTime, formattedOutTime)
           : "0h 0m";
+
       if (totalHours) shift.total_hours = totalHours;
 
       await shift.save();

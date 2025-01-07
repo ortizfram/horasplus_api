@@ -34,11 +34,19 @@ const shiftSchema = new mongoose.Schema({
     required: false,
   },
   location: { 
-    latitude: {
+    latitude_in: {
       type: Number,
       required: false,
     },
-    longitude: {
+    longitude_in: {
+      type: Number,
+      required: false,
+    },
+    latitude_out: {
+      type: Number,
+      required: false,
+    },
+    longitude_out: {
       type: Number,
       required: false,
     },
