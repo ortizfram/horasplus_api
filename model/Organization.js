@@ -16,6 +16,10 @@ const organizationSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  admin_celphones: {
+    type: [String], // Un array de cadenas para almacenar números de teléfono
+    required: false, // Opcional, puede omitir este campo
+  },
 });
 
 module.exports = mongoose.model("Organization", organizationSchema);
