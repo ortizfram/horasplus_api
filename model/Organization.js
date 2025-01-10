@@ -1,9 +1,21 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const organizationSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   name: { type: String, required: true },
-  image: { type: String } 
+  image: { type: String },
+  latitude: {
+    type: Number,
+    required: false,
+  },
+  longitude: {
+    type: Number,
+    required: false,
+  },
 });
 
-module.exports = mongoose.model('Organization', organizationSchema);
+module.exports = mongoose.model("Organization", organizationSchema);
