@@ -4,11 +4,13 @@ const userRouter = require("./routes/users");
 const errorHandler = require("./middlewares/errorHandler");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const { ORIGIN_URL } = require("./config");
+const { ORIGIN_URL, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE } = require("./config");
 const orgRouter = require("./routes/organization.routes");
 const shiftRouter = require("./routes/shift.routes");
 var multer = require("multer");
 const { MONGO_URI } = require("./config");
+const twilio = require('twilio');
+
 
 const User = require("./model/User");
 const app = express();
@@ -52,9 +54,23 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 
 var upload = multer({ dest: "./uploads" });
+const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
 
 //! Routes
 app.use("/api/users", userRouter);
+app.post("/api/send-alert", (req,res)=>{
+  const { message, phone } = req.body;
+
+  client.messages
+    .create({
+      body: message,
+      to: phone,
+      from: TWILIO_PHONE,
+    })
+    .then((message) => res.status(200).json({ sid: message.sid }))
+    .catch((error) => res.status(500).json({ error: error.message }));
+})
 app.use("/api/organization", orgRouter);
 app.use("/api/shift", shiftRouter);
 app.post("/upload", upload.single("document"), (req, res) => {

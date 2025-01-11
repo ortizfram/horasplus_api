@@ -6,6 +6,9 @@ const NODEMAILER_EMAIL = process.env.NODEMAILER_EMAIL;
 const NODEMAILER_PASS = process.env.NODEMAILER_PASS;
 const BRAND_EMAIL = process.env.BRAND_EMAIL;
 const MONGO_URI = `${process.env.MONGO_URI}` //: "mongodb://localhost:27017/auth-api";
+export const TWILIO_ACCOUNT_SID = `${process.env.TWILIO_ACCOUNT_SID_ENV}`
+export const TWILIO_AUTH_TOKEN = `${process.env.TWILIO_AUTH_TOKEN_ENV}`
+export const TWILIO_PHONE = `${process.env.TWILIO_PHONE_ENV}`
 
 module.exports = {
   MONGO_URI,
