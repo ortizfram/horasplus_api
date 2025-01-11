@@ -8,11 +8,11 @@ const organizationSchema = new mongoose.Schema({
   },
   name: { type: String, required: true },
   image: { type: String },
-  latitude: {
+  latitude: { // cargar manualmente desde maps
     type: Number,
     required: false,
   },
-  longitude: {
+  longitude: { // cargar manualmente desde maps
     type: Number,
     required: false,
   },
