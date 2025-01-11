@@ -54,8 +54,8 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 
 var upload = multer({ dest: "./uploads" });
-const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
+const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 //! Routes
 app.use("/api/users", userRouter);
